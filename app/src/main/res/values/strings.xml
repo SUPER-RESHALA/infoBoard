@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">InfoBoard</string>
+    <string name="defTextView">Hello Word!</string>
+</resources>

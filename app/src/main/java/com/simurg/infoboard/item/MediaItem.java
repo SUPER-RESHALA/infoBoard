@@ -21,6 +21,19 @@ MediaItem(File file,String name){
         this.file=file;
         this.name=name;
 }
+
+    public String getName() {
+        return name;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
     public abstract int getType();
     public abstract void play(MediaPlayerManager mediaPlayerManager);
 }

@@ -16,6 +16,10 @@ public class ImageItem extends MediaItem{
         super(file);
         this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
     }
+    public ImageItem(String name,int duration) {
+       super(name);
+        this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
+    }
     public int getDuration() {
         return duration;
     }

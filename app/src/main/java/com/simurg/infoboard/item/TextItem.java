@@ -17,6 +17,10 @@ public class TextItem extends MediaItem{
         super(item);
         this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
     }
+    public TextItem(String name, int duration) {
+        super(name);
+        this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
+    }
     public int getDuration() {
         return duration;
     }

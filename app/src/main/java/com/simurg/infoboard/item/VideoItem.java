@@ -13,6 +13,9 @@ public class VideoItem extends MediaItem {
    public VideoItem(File item) {
         super(item);
     }
+    public VideoItem(String name) {
+        super(name);
+    }
     @Override
     public int getType() {
         return TYPE_VIDEO;

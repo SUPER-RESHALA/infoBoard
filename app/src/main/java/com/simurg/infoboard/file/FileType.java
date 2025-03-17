@@ -5,6 +5,8 @@ import com.simurg.infoboard.item.MediaItem;
 import com.simurg.infoboard.log.FileLogger;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
 
 public class FileType {
     private static final String TAG= "FileType";
@@ -36,6 +38,21 @@ public class FileType {
         String fileName= file.getName().toLowerCase();
         return fileName.endsWith(".txt");
     }
+    public static boolean isVideo(String fileName){
+        fileName = fileName.toLowerCase();
+        return fileName.endsWith(".mp4");
+    }
+
+    public static boolean isImage(String fileName){
+        fileName = fileName.toLowerCase();
+        return fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".png") || fileName.endsWith(".bmp");
+    }
+
+    public static boolean isText(String fileName){
+        fileName = fileName.toLowerCase();
+        return fileName.endsWith(".txt");
+    }
+
 
     public static int DetectFileType(File file){
         if (isImage(file)){
@@ -51,21 +68,26 @@ public class FileType {
         FileLogger.logError(TAG,"Unknown type of file "+ file.getAbsolutePath());
         return MediaItem.TYPE_UNKNOWN;
     }
-//    public enum TypeOfFile{
-//        VIDEO, IMAGE,TEXT, UNKNOWN
-//    }
-    //public static TypeOfFile DetectFileType1(File file){
-//        if (isImage(file)){
-//            FileLogger.log(TAG,"IMAGE "+file.getAbsolutePath());
-//            return TypeOfFile.IMAGE;
-//        }else if (isVideo(file)){
-//            FileLogger.log(TAG,"VIDEO "+file.getAbsolutePath());
-//            return TypeOfFile.VIDEO;
-//        }else if (isText(file)){
-//            FileLogger.log("TAG", "TEXT "+ file.getAbsolutePath());
-//            return  TypeOfFile.TEXT;
-//        }
-//        FileLogger.logError(TAG,"Unknown type of file "+ file.getAbsolutePath());
-//        return TypeOfFile.UNKNOWN;
+public static int DetectFileType(Map<String, Object> item){
+if (!item.containsValue("name")){
+    return MediaItem.TYPE_UNKNOWN;
+}else {
+ String name= Objects.requireNonNull(item.get("name")).toString();
+    if (isImage(name)){
+        FileLogger.log(TAG,"IMAGE "+item);
+        return MediaItem.TYPE_IMAGE;
+    }else if (isVideo(name)){
+        FileLogger.log(TAG,"VIDEO "+item );
+        return MediaItem.TYPE_VIDEO;
+    }else if (isText(name)){
+        FileLogger.log("TAG", "TEXT "+ item);
+        return  MediaItem.TYPE_TEXT;
+    }
+}
+    FileLogger.logError(TAG,"Unknown type of file "+ item);
+    return MediaItem.TYPE_UNKNOWN;
+}
+//public static MediaItem mediaItem(Map<String, Object> item){
+//
 //}
 }

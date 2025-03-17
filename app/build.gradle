@@ -41,5 +41,8 @@ dependencies {
     implementation libs.commons.net
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation libs.gson
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation libs.jackson.databind
+
 
 }

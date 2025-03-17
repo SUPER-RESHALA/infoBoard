@@ -7,6 +7,7 @@ import com.simurg.infoboard.log.FileLogger;
 import com.simurg.infoboard.player.MediaPlayerManager;
 
 import java.io.File;
+import java.util.Objects;
 
 public class TextItem extends MediaItem{
     public static final String TAG="TextItem";
@@ -38,12 +39,13 @@ public class TextItem extends MediaItem{
    TextView textView= mp.getTextView();
         FileLogger.log(TAG, "TextView получен"+textView+"   "+ textView.toString());
     textView.setText(text);
-    FileLogger.log(TAG,"Текст экрана "+ text);
+    FileLogger.log(TAG,"Text of screen: "+ text);
     mp.hideVideoView();
     mp.hideImageView();
     mp.showTextView();
     FileLogger.log(TAG,"Stop HAndler Called");
     mp.stopHandler();
+        FileLogger.log(TAG," Call PostDelayed");
   mp.getHandler().postDelayed(mp::playNext, duration * 1000);
 FileLogger.log(TAG,"Запустился HANDLER Duration: "+ duration);
     }

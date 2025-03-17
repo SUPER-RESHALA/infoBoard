@@ -35,12 +35,14 @@ imageView.setImageBitmap(bitmap);
     }
     @Override
     public void play(MediaPlayerManager mp) {
+        FileLogger.log("TAG","SetImage call");
     setImage(mp.getImageView());
     mp.hideTextView();
     mp.hideVideoView();
     mp.showImageView();
     FileLogger.log(TAG,"Stop HAndler Called");
     mp.stopHandler();
+    FileLogger.log(TAG," Call PostDelayed");
     mp.getHandler().postDelayed(mp::playNext, duration * 1000);
     }
 }

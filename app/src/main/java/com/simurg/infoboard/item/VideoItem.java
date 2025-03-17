@@ -20,26 +20,27 @@ public class VideoItem extends MediaItem {
     @Override
     public void play(MediaPlayerManager mediaPlayerManager) {
         if (!file.exists()){
-            FileLogger.logError(TAG, "Файл не существует "+ file.getAbsolutePath());
+            FileLogger.logError(TAG, "Файл не существует(File not exist) "+ file.getAbsolutePath());
         }
         VideoView videoView= mediaPlayerManager.getVideoView();
-        FileLogger.log(TAG, "Получен videoView "+ videoView.toString() + " | "+ videoView);
+        FileLogger.log(TAG, "Получен videoView(Get VidView) "+ videoView.toString() + " | "+ videoView);
 
 
             mediaPlayerManager.hideImageView();
             mediaPlayerManager.hideTextView();
         videoView.setVideoPath(file.getAbsolutePath());
-        FileLogger.log(TAG,"путь до видео настроен");
+        FileLogger.log(TAG,"путь до видео настроен(setVideoPath)"+ file.getAbsolutePath());
             mediaPlayerManager.showVideoView();
             videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mediaPlayer) {
-                    FileLogger.log(TAG,"Началось проигрывание видео");
+                    FileLogger.log(TAG,"Началось проигрывание видео(Start Playing Vid");
                     videoView.start();
                 }
             });
-            videoView.setOnCompletionListener(mp -> mediaPlayerManager.playNext());
         FileLogger.log(TAG, "Сработал play next");
+            videoView.setOnCompletionListener(mp -> mediaPlayerManager.playNext());
+
 
     }
 }

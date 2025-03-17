@@ -108,7 +108,6 @@ public void stratchVideoView(){
 
 
 
-
 //    public synchronized void playNext() {
 //        if (mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1) return;
 //
@@ -193,10 +192,10 @@ public void setDefaultView(){
                     mediaItems.add(new VideoItem(file));
                     break;
                 case MediaItem.TYPE_IMAGE:
-                    mediaItems.add(new ImageItem(file, 15));
+                    mediaItems.add(new ImageItem(file, DefaultDuration));
                     break;
                 case MediaItem.TYPE_TEXT:
-                    mediaItems.add(new TextItem(file, 15));
+                    mediaItems.add(new TextItem(file, DefaultDuration));
                     break;
                 default:
                     FileLogger.logError("MediaLoader", "Unknown file type: " + file.getAbsolutePath());

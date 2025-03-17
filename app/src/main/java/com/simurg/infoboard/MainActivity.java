@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,8 +36,11 @@ import com.simurg.infoboard.item.MediaItem;
 import com.simurg.infoboard.log.FileLogger;
 import com.simurg.infoboard.player.MediaPlayerManager;
 
+import org.apache.commons.net.ftp.FTPClient;
+
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -117,8 +121,13 @@ public class MainActivity extends AppCompatActivity {
         TextView textView= findViewById(R.id.textView);
         MediaPlayerManager mp=new MediaPlayerManager(textView,imageView,videoView);
        // List<MediaItem> mediaItems=mp.createMediaList(files);
-mp.setPlaylist(files);
-      mp.play();
+
+//mp.setPlaylist(files);
+      //mp.play();
+
+
+
+
 
 
     }//ON CREATE

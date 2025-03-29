@@ -10,7 +10,9 @@ public abstract class MediaItem {
     public static final int TYPE_VIDEO = 1;
     public static final int TYPE_IMAGE = 2;
     public static final int TYPE_TEXT = 3;
-   protected File file;
+    public static final String nameStr="name";
+    public static final String durationStr="duration";
+    protected File file;
     MediaItem(File item){
  this.file= item;
 }

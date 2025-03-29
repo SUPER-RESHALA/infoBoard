@@ -33,8 +33,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.simurg.infoboard.item.MediaItem;
+import com.simurg.infoboard.json.JSONHandler;
 import com.simurg.infoboard.log.FileLogger;
 import com.simurg.infoboard.player.MediaPlayerManager;
+import com.simurg.infoboard.utils.mapUtils;
 
 import org.apache.commons.net.ftp.FTPClient;
 
@@ -124,12 +126,24 @@ public class MainActivity extends AppCompatActivity {
 
 //mp.setPlaylist(files);
       //mp.play();
+        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        String path = downloadsDir.getAbsolutePath(); // Вернёт /storage/emulated/0/Download
 
+        try {
+            List<Map<String, Object>> mylist= JSONHandler.readJsonFromFile(new File(path+"/file.json"));
+            for (Map<String, Object> map:mylist){
+                if (map.containsKey("duration")){
+                    System.err.println("--------------------------------------"+ map.get(MediaItem.durationStr).getClass());
+                    if ( map.get(MediaItem.durationStr) instanceof String){
+                        System.out.println("IT STRING ++++++++++++++++++");
+                    }
+                }
 
-
-
-
-
+                Log.i(" map", mapUtils.stringValueOfMap(map)+"\n"+"\n");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }//ON CREATE
     private void requestPermissions() {
         String[] permissions = {

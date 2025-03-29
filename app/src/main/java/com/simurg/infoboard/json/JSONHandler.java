@@ -29,10 +29,12 @@ public static List<Map<String, Object>> readJsonFromFile(File jsonFile) throws I
 ArrayList<String> names= new ArrayList<>();
         List<Map<String, Object>> json=  readJsonFromFile(jsonFile);
         for (Map<String, Object> obj: json) {
+            //TODO requireNonNull решить вопрос с ними
             names.add(Objects.requireNonNull(obj.get("name")).toString());
         }
         return names;
     }
+
     public static ArrayList<String> getNamesFromJsonNoNull(File jsonFile) throws IOException {
         ArrayList<String> names = new ArrayList<>();
         List<Map<String, Object>> json = readJsonFromFile(jsonFile);  // Получение данных из JSON

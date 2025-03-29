@@ -3,6 +3,8 @@ import android.media.MediaMetadataRetriever;
 
 import com.simurg.infoboard.item.MediaItem;
 import com.simurg.infoboard.log.FileLogger;
+import com.simurg.infoboard.utils.mapUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -68,25 +70,79 @@ public class FileType {
         FileLogger.logError(TAG,"Unknown type of file "+ file.getAbsolutePath());
         return MediaItem.TYPE_UNKNOWN;
     }
-public static int DetectFileType(Map<String, Object> item){
-if (!item.containsValue("name")){
-    return MediaItem.TYPE_UNKNOWN;
-}else {
- String name= Objects.requireNonNull(item.get("name")).toString();
-    if (isImage(name)){
-        FileLogger.log(TAG,"IMAGE "+item);
-        return MediaItem.TYPE_IMAGE;
-    }else if (isVideo(name)){
-        FileLogger.log(TAG,"VIDEO "+item );
-        return MediaItem.TYPE_VIDEO;
-    }else if (isText(name)){
-        FileLogger.log("TAG", "TEXT "+ item);
-        return  MediaItem.TYPE_TEXT;
+//public static int DetectFileTypeOld(Map<String, Object> item){
+//if (!item.containsValue("name")){
+//    return MediaItem.TYPE_UNKNOWN;
+//}else {
+//    //T requireNonNull решить вопрос
+// String name= Objects.requireNonNull(item.get("name")).toString();
+//    if (isImage(name)){
+//        FileLogger.log(TAG,"IMAGE "+item);
+//        return MediaItem.TYPE_IMAGE;
+//    }else if (isVideo(name)){
+//        FileLogger.log(TAG,"VIDEO "+item );
+//        return MediaItem.TYPE_VIDEO;
+//    }else if (isText(name)){
+//        FileLogger.log("TAG", "TEXT "+ item);
+//        return  MediaItem.TYPE_TEXT;
+//    }
+//}
+//    FileLogger.logError(TAG,"Unknown type of file "+ item);
+//    return MediaItem.TYPE_UNKNOWN;
+//}
+
+    public static int DetectFileType(Map<String, Object> item) {
+        if (!item.containsKey(MediaItem.nameStr) || item.get(MediaItem.nameStr) == null) {
+            return MediaItem.TYPE_UNKNOWN;
+        }
+        //TODO Возможен nullPointer
+        String name = item.get(MediaItem.nameStr).toString();
+        if (isImage(name)) {
+            FileLogger.log(TAG, "IMAGE " + item);
+            return MediaItem.TYPE_IMAGE;
+        }
+        if (isVideo(name)) {
+            FileLogger.log(TAG, "VIDEO " + item);
+            return MediaItem.TYPE_VIDEO;
+        }
+        if (isText(name)) {
+            FileLogger.log(TAG, "TEXT " + item);
+            return MediaItem.TYPE_TEXT;
+        }
+        FileLogger.logError(TAG, "Unknown type of file " + item);
+        return MediaItem.TYPE_UNKNOWN;
     }
-}
-    FileLogger.logError(TAG,"Unknown type of file "+ item);
-    return MediaItem.TYPE_UNKNOWN;
-}
+    public static int DetectFileTypeByString(String name) {
+        if (name == null || name.isEmpty()) {
+            return MediaItem.TYPE_UNKNOWN;
+        }
+
+        // Проверка на изображение
+        if (isImage(name)) {
+            FileLogger.log(TAG, "IMAGE " + name);
+            return MediaItem.TYPE_IMAGE;
+        }
+
+        // Проверка на видео
+        if (isVideo(name)) {
+            FileLogger.log(TAG, "VIDEO " + name);
+            return MediaItem.TYPE_VIDEO;
+        }
+
+        // Проверка на текстовый файл
+        if (isText(name)) {
+            FileLogger.log(TAG, "TEXT " + name);
+            return MediaItem.TYPE_TEXT;
+        }
+
+        // Если тип не определён
+        FileLogger.logError(TAG, "Unknown type of file " + name);
+        return MediaItem.TYPE_UNKNOWN;
+    }
+
+
+
+
 //public static MediaItem mediaItem(Map<String, Object> item){
 //
 //}

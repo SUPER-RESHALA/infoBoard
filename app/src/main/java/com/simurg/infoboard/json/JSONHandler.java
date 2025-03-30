@@ -2,9 +2,6 @@ package com.simurg.infoboard.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.simurg.infoboard.file.FileType;
-import com.simurg.infoboard.item.ImageItem;
-import com.simurg.infoboard.item.MediaItem;
 
 
 import java.io.File;
@@ -22,8 +19,10 @@ public class JSONHandler {
     }
 public static List<Map<String, Object>> readJsonFromFile(File jsonFile) throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
-    // Чтение JSON из файла
    return objectMapper.readValue(jsonFile, new TypeReference<List<Map<String, Object>>>() {});}
+    public static Map<String, String> readConfigJson(File jsonFile) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(jsonFile, new TypeReference<Map<String, String>>() {});}
 
     public static  ArrayList<String> getNamesFromJson(File jsonFile) throws IOException {
 ArrayList<String> names= new ArrayList<>();

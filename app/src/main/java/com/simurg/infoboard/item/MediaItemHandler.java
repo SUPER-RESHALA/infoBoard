@@ -3,7 +3,6 @@ package com.simurg.infoboard.item;
 import com.simurg.infoboard.file.FileType;
 import com.simurg.infoboard.log.FileLogger;
 import com.simurg.infoboard.mydate.CustomDate;
-
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
@@ -14,7 +13,7 @@ public class MediaItemHandler {
         try {
              time  =CustomDate.parseTime(scheduledTime);
         } catch (ParseException e) {
-            FileLogger.logError("validateScheduledTime", "ParseException invalid time:  "+ scheduledTime);
+            FileLogger.logError("validateScheduledTime", "ParseException invalid time:  "+ scheduledTime+"      "+e.getMessage());
              return new Date(0L);
           //  throw  new RuntimeException();
         }

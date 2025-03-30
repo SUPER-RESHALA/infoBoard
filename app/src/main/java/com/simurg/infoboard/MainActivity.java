@@ -2,6 +2,8 @@ package com.simurg.infoboard;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,13 +34,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.simurg.infoboard.config.Config;
+import com.simurg.infoboard.ftp.FtpConnectionManager;
 import com.simurg.infoboard.item.MediaItem;
 import com.simurg.infoboard.json.JSONHandler;
+import com.simurg.infoboard.json.JsonObj;
 import com.simurg.infoboard.log.FileLogger;
 import com.simurg.infoboard.player.MediaPlayerManager;
 import com.simurg.infoboard.utils.mapUtils;
 
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPReply;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -79,9 +85,47 @@ public class MainActivity extends AppCompatActivity {
         );
         requestPermissions();
         setUiOptions();
+        File baseDir= this.getExternalFilesDir(null);
+//        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+//        String path = downloadsDir.getAbsolutePath();
+        Config config= new Config(new File( baseDir,"config.json"));
+        try {
+            Map<String,String> configMap= config.getAllConfigValues();
+           boolean success= config.setupConfig(configMap);
+           if (!success)throw new IOException("Config setup failed");
+        } catch (IOException e) {
+            TextView textView= findViewById(R.id.textView);
+            String errorMessage=getString(R.string.configErrMessage1)+" "+baseDir.getAbsolutePath()+"  "+getString(R.string.configErrMessage2)+"\n"+getString(R.string.configGuide);
+            textView.setText(errorMessage);
+            textView.setVisibility(View.VISIBLE);
+            Log.e("Config", "ErrorConfig Setup");
+            Handler handler= new Handler();
+            handler.postDelayed(()->{
+                finish();
+                System.exit(0);
+            },30000);
+            return;
+        }
+        SharedPreferences prefs= getApplicationContext().getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor=prefs.edit();
+        editor.putString("id",config.getId());
+        editor.commit();
+        FileLogger.init(this);
+        VideoView videoView= findViewById(R.id.videoView);
+        ImageView imageView = findViewById(R.id.imageView);
+        TextView textView= findViewById(R.id.textView);
 
 
-
+        JsonObj jsonObj= new JsonObj(new File(baseDir,config.getJsonName()));
+        if (jsonObj.getFile().exists()){
+            try {
+                JSONHandler.readJsonFromFile(jsonObj.getFile());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+Log.i("ConfigValues", config.getHost()+"\n"+ config.getUserName()+"\n"+config.getPassword()+"\n"
+        +config.getMediaDirName()+"\n"+ config.getJsonName()+"\n"+config.getId());
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //            Window window = getWindow();
 //            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -92,13 +136,13 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        File baseDir= this.getExternalFilesDir(null);
+
 //        File appDir= new File(baseDir,"Files");
 //        if (!appDir.mkdir()){
 //            Log.e("mkDir", "Cant mkDir");
 //        }
 
-        FileLogger.init(this);
+
         File [] files= baseDir.listFiles();
 //System.err.println(FileLogger.getLogFilePath());
 //File logFile= new File(FileLogger.getLogFilePath());
@@ -118,32 +162,61 @@ public class MainActivity extends AppCompatActivity {
 //        } catch (FileNotFoundException e) {
 //            throw new RuntimeException(e);
 //        }
-        VideoView videoView= findViewById(R.id.videoView);
-        ImageView imageView = findViewById(R.id.imageView);
-        TextView textView= findViewById(R.id.textView);
+
         MediaPlayerManager mp=new MediaPlayerManager(textView,imageView,videoView);
        // List<MediaItem> mediaItems=mp.createMediaList(files);
 
 //mp.setPlaylist(files);
       //mp.play();
-        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        String path = downloadsDir.getAbsolutePath(); // Вернёт /storage/emulated/0/Download
+         // Вернёт /storage/emulated/0/Download
 
-        try {
-            List<Map<String, Object>> mylist= JSONHandler.readJsonFromFile(new File(path+"/file.json"));
-            for (Map<String, Object> map:mylist){
-                if (map.containsKey("duration")){
-                    System.err.println("--------------------------------------"+ map.get(MediaItem.durationStr).getClass());
-                    if ( map.get(MediaItem.durationStr) instanceof String){
-                        System.out.println("IT STRING ++++++++++++++++++");
-                    }
-                }
+//        try {
+//            List<Map<String, Object>> mylist= JSONHandler.readJsonFromFile(new File(path+"/file.json"));
+//            for (Map<String, Object> map:mylist){
+//                if (map.containsKey("duration")){
+//                    System.err.println("--------------------------------------"+ map.get(MediaItem.durationStr).getClass());
+//                    if ( map.get(MediaItem.durationStr) instanceof String){
+//                        System.out.println("IT STRING ++++++++++++++++++");
+//                    }
+//                }
+//
+//                Log.i(" map", mapUtils.stringValueOfMap(map)+"\n"+"\n");
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
 
-                Log.i(" map", mapUtils.stringValueOfMap(map)+"\n"+"\n");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+
+
+
+
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                String hostname = "ftp.simurg.by";
+//                String user = "timetracker@timetracker.simurg-mp.com";
+//                String password = "TimetrackerAdmin";
+//                FtpConnectionManager ftpConnectionManager = new FtpConnectionManager();
+//                ftpConnectionManager.connect(hostname);
+//                ftpConnectionManager.login(user, password);
+//FTPClient ftpClient =ftpConnectionManager.getFtpClient();
+//// Запрашиваем список поддерживаемых команд
+//                try {
+//                    ftpClient.sendCommand("FEAT");
+//                    String reply = ftpClient.getReplyString();
+//                    System.out.println(reply);
+//                    ftpConnectionManager.logout();
+//                    ftpConnectionManager.disconnect();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//// Читаем ответ сервера
+//            }
+//        }).start();
+
+
     }//ON CREATE
     private void requestPermissions() {
         String[] permissions = {

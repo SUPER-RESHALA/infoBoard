@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">InfoBoard</string>
     <string name="defTextView">Hello Word!</string>
+    <string name="configErrMessage1">Конфиг файл отсутствует или настроен неправильно, пожалуйста, добавьте файл config.json в папку</string>
+    <string name="configErrMessage2">и настройте его следующим образом:</string>
+    <string name="configGuide">Пример структуры файла: { \"host\": \"example.com\", \"userName\": \"user\", \"password\": \"password\" }  Если файл уже существует, проверьте его формат и убедитесь, что все параметры указаны корректно.</string>
 </resources>

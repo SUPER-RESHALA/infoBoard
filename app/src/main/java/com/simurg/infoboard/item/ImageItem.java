@@ -8,6 +8,7 @@ import com.simurg.infoboard.log.FileLogger;
 import com.simurg.infoboard.player.MediaPlayerManager;
 
 import java.io.File;
+import java.util.Date;
 
 public class ImageItem extends MediaItem{
     public static final String TAG= "ImageItem";
@@ -20,6 +21,12 @@ public class ImageItem extends MediaItem{
        super(name);
         this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
     }
+    public ImageItem(String name, int duration, Date scheduledTime, Boolean isScheduled) {
+        super(name,scheduledTime,isScheduled);
+        this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
+    }
+
+
     public int getDuration() {
         return duration;
     }

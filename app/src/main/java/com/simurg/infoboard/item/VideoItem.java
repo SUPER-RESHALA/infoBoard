@@ -7,6 +7,7 @@ import com.simurg.infoboard.log.FileLogger;
 import com.simurg.infoboard.player.MediaPlayerManager;
 
 import java.io.File;
+import java.util.Date;
 
 public class VideoItem extends MediaItem {
     public static final String TAG="VideoItem";
@@ -16,6 +17,9 @@ public class VideoItem extends MediaItem {
     public VideoItem(String name) {
         super(name);
     }
+    public VideoItem(String name, Date scheduledTime, Boolean isScheduled) {
+        super(name,scheduledTime,isScheduled);
+        }
     @Override
     public int getType() {
         return TYPE_VIDEO;

@@ -30,11 +30,12 @@ public class MediaPlayerManager {
     public static int DefaultDuration=10;
 
     protected List<MediaItem> mediaFiles;
+    protected List<MediaItem> sheduledPlaylist;
     protected int currentIndex = 0;
-
-
-
-
+    /**
+     * Sets the default duration for media playback.
+     * @param defaultDuration The duration in seconds.
+     */
     public static void setDefaultDuration(int defaultDuration) {
         DefaultDuration = defaultDuration;
     }
@@ -42,6 +43,12 @@ public class MediaPlayerManager {
     public Handler getHandler() {
         return handler;
     }
+    /**
+     * Constructor for MediaPlayerManager.
+     * @param textView The TextView for displaying text content.
+     * @param imageView The ImageView for displaying images.
+     * @param videoView The VideoView for playing videos.
+     */
     public MediaPlayerManager(TextView textView, ImageView imageView, VideoView videoView) {
         this.textView = textView;
         this.imageView = imageView;
@@ -50,6 +57,9 @@ public class MediaPlayerManager {
     public TextView getTextView() {
         return textView;
     }
+    /**
+     * Stretches the VideoView to match the screen size.
+     */
 public void stratchVideoView(){
             ViewGroup.LayoutParams params = videoView.getLayoutParams();
         params.width = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -72,7 +82,10 @@ public void stratchVideoView(){
     public void setVideoView(VideoView videoView) {
         this.videoView = videoView;
     }
-
+    /**
+     * Sets the playlist using a list of media items.
+     * @param mediaFiles The list of media items.
+     */
     public void setPlaylist(List<MediaItem> mediaFiles) {
         this.mediaFiles = mediaFiles;
         //currentIndex = 0;
@@ -80,7 +93,10 @@ public void stratchVideoView(){
     }
 
 
-
+    /**
+     * Sets the playlist using an array of files.
+     * @param files The array of media files.
+     */
     public void setPlaylist(File[]files) {
         this.mediaFiles = createMediaList(files);
         //currentIndex = 0;
@@ -90,7 +106,9 @@ public void stratchVideoView(){
 
 
 
-
+    /**
+     * Plays the next media item in the playlist.
+     */
     public synchronized void playNext() {
         if( mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1)FileLogger.logError("PlayNext","mediaFiles==null");
         if (mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1) return;
@@ -122,6 +140,9 @@ public void stratchVideoView(){
 //        }
 //    }
 
+    /**
+     * Starts playing the current media item.
+     */
     public synchronized void play() {
         if( mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1)FileLogger.logError("Play","mediaFiles==null");
         if (mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1) return;
@@ -135,7 +156,9 @@ public void stratchVideoView(){
 
       // mediaFiles.get(0).play(this);
     }
-
+    /**
+     * Stops playback and clears the playlist.
+     */
     public synchronized void stop(){
         FileLogger.log(TAG,"Stop, mediaFiles.clear()");
 setDefaultView();
@@ -183,6 +206,11 @@ public void setDefaultView(){
         FileLogger.log(TAG," hideImageView");
         imageView.setVisibility(View.GONE);
     }
+    /**
+     * Creates a media item list from an array of files.
+     * @param files The array of media files.
+     * @return A list of MediaItem objects.
+     */
     public  List<MediaItem> createMediaList(File[] files) {
         List<MediaItem> mediaItems = new ArrayList<>();
 

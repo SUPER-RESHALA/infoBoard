@@ -7,6 +7,7 @@ import com.simurg.infoboard.log.FileLogger;
 import com.simurg.infoboard.player.MediaPlayerManager;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Objects;
 
 public class TextItem extends MediaItem{
@@ -19,6 +20,10 @@ public class TextItem extends MediaItem{
     }
     public TextItem(String name, int duration) {
         super(name);
+        this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
+    }
+    public TextItem(String name, int duration, Date scheduledTime, Boolean isScheduled) {
+        super(name,scheduledTime,isScheduled);
         this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
     }
     public int getDuration() {

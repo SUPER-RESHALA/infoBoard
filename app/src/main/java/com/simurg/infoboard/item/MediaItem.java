@@ -29,7 +29,12 @@ public abstract class MediaItem {
 MediaItem(String name){
         this.name=name;
 }
-
+    MediaItem(File file, Date scheduledTime, Boolean isScheduled){
+        this.name=file.getName();
+        this.file=file;
+        this.scheduledTime=scheduledTime;
+        this.isScheduled= isScheduled;
+    }
     MediaItem(String name, Date scheduledTime, Boolean isScheduled){
         this.name=name;
         this.scheduledTime=scheduledTime;

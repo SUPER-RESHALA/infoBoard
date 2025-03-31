@@ -20,6 +20,9 @@ public class VideoItem extends MediaItem {
     public VideoItem(String name, Date scheduledTime, Boolean isScheduled) {
         super(name,scheduledTime,isScheduled);
         }
+    public VideoItem(File file, Date scheduledTime, Boolean isScheduled) {
+        super(file,scheduledTime,isScheduled);
+    }
     @Override
     public int getType() {
         return TYPE_VIDEO;

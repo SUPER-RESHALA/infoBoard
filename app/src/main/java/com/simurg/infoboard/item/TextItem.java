@@ -26,6 +26,11 @@ public class TextItem extends MediaItem{
         super(name,scheduledTime,isScheduled);
         this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
     }
+    public TextItem(File file, int duration, Date scheduledTime, Boolean isScheduled) {
+        super(file,scheduledTime,isScheduled);
+        this.duration = duration > 0 ? duration : MediaPlayerManager.DefaultDuration;
+    }
+
     public int getDuration() {
         return duration;
     }

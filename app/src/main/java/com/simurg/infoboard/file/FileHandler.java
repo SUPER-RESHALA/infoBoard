@@ -31,4 +31,26 @@ public static long getFileSize(File file){
 public static long lastModified(File file){
    return file.lastModified();
     }
+    public static File createCustomFolder(File parentFolder, String customFolderName) {
+        if (parentFolder == null || !parentFolder.exists()) {
+            FileLogger.logError("createCustomFolder(without context)", "base folder is already exist or not specified");
+            return null;
+        }
+
+        File customFolder = new File(parentFolder, customFolderName); // Создаём папку внутри указанной родительской
+
+        if (!customFolder.exists()) {
+            boolean created = customFolder.mkdirs(); // Создание папки
+            if (created) {
+                FileLogger.log("createCustomFolder(without context)", "mkdir success "+ customFolder.getAbsolutePath());
+            } else {
+                FileLogger.logError("createCustomFolder(without context)", "cant mkdir "+ customFolder.getAbsolutePath());
+            }
+        } else {
+            FileLogger.log("createCustomFolder(without context)", "Dir already exists "+ customFolder.getAbsolutePath());
+        }
+
+        return customFolder;
+    }
+
 }

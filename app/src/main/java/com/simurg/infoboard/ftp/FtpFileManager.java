@@ -12,6 +12,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 public class FtpFileManager {
@@ -50,7 +54,15 @@ public class FtpFileManager {
         }
         return -1; // Файл не найден
     }
-
+    public static FtpFileInfo getFileInfo(String fileName, FTPClient ftpClient) throws IOException {
+        FTPFile[] files = ftpClient.listFiles(fileName);
+        if (files.length == 1) {
+            long size = files[0].getSize();
+            Date modTime = files[0].getTimestamp() != null ? files[0].getTimestamp().getTime() : null;
+            return new FtpFileInfo(size, modTime);
+        }
+        return null; // Файл не найден
+    }
     /**
      * Навигация к родительской директории.
      */

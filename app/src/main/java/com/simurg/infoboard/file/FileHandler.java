@@ -2,14 +2,10 @@ package com.simurg.infoboard.file;
 
 import com.simurg.infoboard.log.FileLogger;
 
-import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Map;
-import java.util.Objects;
+import java.util.Date;
 import java.util.Scanner;
 
 public class FileHandler {
@@ -22,5 +18,17 @@ StringBuilder fileContent= new StringBuilder();
        }
        FileLogger.log("readFromFile", "scanner closed, registration info: "+ fileContent);
 return fileContent.toString();
+    }
+    public static boolean deleteFile(File file) {
+        if (file != null && file.isFile()) {
+            return file.delete(); // Удаляет файл, если это действительно файл
+        }
+        return false; // Если это не файл, возвращаем false
+    }
+public static long getFileSize(File file){
+        return file.length();
+}
+public static long lastModified(File file){
+   return file.lastModified();
     }
 }

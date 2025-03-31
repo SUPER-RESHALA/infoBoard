@@ -56,6 +56,7 @@ import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<String[]> permissionLauncher;
+    private String prefsName="myPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         requestPermissions();
         setUiOptions();
         File baseDir= this.getExternalFilesDir(null);
-//        File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+      // File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 //        String path = downloadsDir.getAbsolutePath();
         Config config= new Config(new File( baseDir,"config.json"));
         try {
@@ -106,24 +107,23 @@ public class MainActivity extends AppCompatActivity {
             },30000);
             return;
         }
-        SharedPreferences prefs= getApplicationContext().getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        SharedPreferences prefs= getApplicationContext().getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor=prefs.edit();
         editor.putString("id",config.getId());
         editor.commit();
-        FileLogger.init(this);
+        FileLogger.init(this, prefsName);
         VideoView videoView= findViewById(R.id.videoView);
         ImageView imageView = findViewById(R.id.imageView);
         TextView textView= findViewById(R.id.textView);
 
-
-        JsonObj jsonObj= new JsonObj(new File(baseDir,config.getJsonName()));
-        if (jsonObj.getFile().exists()){
-            try {
-                JSONHandler.readJsonFromFile(jsonObj.getFile());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+//        JsonObj jsonObj= new JsonObj(new File(baseDir,config.getJsonName()));
+//        if (jsonObj.getFile().exists()){
+//            try {
+//                JSONHandler.readJsonFromFile(jsonObj.getFile());
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
 Log.i("ConfigValues", config.getHost()+"\n"+ config.getUserName()+"\n"+config.getPassword()+"\n"
         +config.getMediaDirName()+"\n"+ config.getJsonName()+"\n"+config.getId());
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

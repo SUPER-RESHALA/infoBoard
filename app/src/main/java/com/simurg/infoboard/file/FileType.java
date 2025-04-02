@@ -93,6 +93,7 @@ public class FileType {
 
     public static int DetectFileType(Map<String, Object> item) {
         if (!item.containsKey(MediaItem.nameStr) || item.get(MediaItem.nameStr) == null) {
+            FileLogger.logError("DetectFileType", "Incorrect type ");
             return MediaItem.TYPE_UNKNOWN;
         }
         //TODO Возможен nullPointer

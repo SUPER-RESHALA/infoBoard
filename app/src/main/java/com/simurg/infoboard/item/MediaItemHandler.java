@@ -46,31 +46,6 @@ public class MediaItemHandler {
     public static  String checkString(Object name){
        return name instanceof String? (String) name:"DefaultValue";
     }
-    ///create MediaItemOld object appropriate to 1 of 3 types(video,text,image) or null if object incorrect
-    ///@param jsonItem 1 jsonObject from json array: {name:example.mp4,duration:5}
-    /// @return MediaItem=new Image,Text,Video(Item) or null, if object==MediaItem.TYPE_UNKNOWN
-    public  static  MediaItem createMediaItemOld(Map<String, Object> jsonItem){
-        int duration= checkDuration(jsonItem.get(MediaItem.durationStr));
-        String name= checkString(jsonItem.get(MediaItem.nameStr));
-        boolean isScheduled=jsonItem.containsKey(MediaItem.timeStr);
-         Date scheduledTime= isScheduled?validateScheduledTime((String) jsonItem.get(MediaItem.timeStr)):new Date(0L);
-       switch (FileType.DetectFileType(jsonItem)){
-           case MediaItem.TYPE_IMAGE:
-               return new ImageItem(name,duration,scheduledTime,isScheduled);
-           case MediaItem.TYPE_VIDEO:
-                   return new VideoItem(name,scheduledTime,isScheduled);
-           case MediaItem.TYPE_TEXT:
-                   return new TextItem(name, duration,scheduledTime,isScheduled);
-           default:
-
-               FileLogger.logError("createMediaItem", "Unknown file type: " + jsonItem);
-               return  null;
-       }
-    }
-
-
-
-
 
 
     ///create MediaItem object appropriate to 1 of 3 types(video,text,image) or null if object incorrect
@@ -82,7 +57,8 @@ public class MediaItemHandler {
         File mediaFile= new File(baseFolder, name);
         boolean isScheduled=jsonItem.containsKey(MediaItem.timeStr);
         //TODO Посмотреть этот момент по моему :new Date(0L); излишне в строке ниже если брать в учёт  public boolean isScheduled(MediaItem mediaItem)
-        Date scheduledTime= isScheduled?validateScheduledTime((String) jsonItem.get(MediaItem.timeStr)):new Date(0L);
+        Date scheduledTime= validateScheduledTime(checkString(jsonItem.get(MediaItem.timeStr)));
+        //Date scheduledTime= isScheduled?validateScheduledTime((String) jsonItem.get(MediaItem.timeStr)):new Date(0L);
         switch (FileType.DetectFileType(jsonItem)){
             case MediaItem.TYPE_IMAGE:
                 return new ImageItem(mediaFile,duration,scheduledTime,isScheduled);

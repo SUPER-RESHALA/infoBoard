@@ -51,6 +51,15 @@ public class VideoItem extends MediaItem {
         FileLogger.log(TAG, "Сработал play next");
             videoView.setOnCompletionListener(mp -> mediaPlayerManager.playNext());
 
+    }
 
+    @Override
+    public String toString() {
+        return "VideoItem{" +
+                "name='" + name + '\'' +
+                ", scheduledTime=" + scheduledTime +
+                ", isScheduled=" + isScheduled +
+                ", file=" + file +
+                '}';
     }
 }

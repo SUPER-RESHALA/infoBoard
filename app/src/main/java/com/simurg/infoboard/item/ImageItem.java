@@ -59,4 +59,15 @@ imageView.setImageBitmap(bitmap);
     FileLogger.log(TAG," Call PostDelayed");
     mp.getHandler().postDelayed(mp::playNext, duration * 1000);
     }
+
+    @Override
+    public String toString() {
+        return "ImageItem{" +
+                "duration=" + duration +
+                ", name='" + name + '\'' +
+                ", scheduledTime=" + scheduledTime +
+                ", isScheduled=" + isScheduled +
+                ", file=" + file +
+                '}';
+    }
 }

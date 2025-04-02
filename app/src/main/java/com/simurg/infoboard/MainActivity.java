@@ -52,6 +52,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         requestPermissions();
         setUiOptions();
         File baseDir= this.getExternalFilesDir(null);
-     // File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+   //  File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 //        String path = downloadsDir.getAbsolutePath();
         Config config= new Config(new File( baseDir,"config.json"));
         try {
@@ -134,6 +135,34 @@ Log.i("ConfigValues", config.getHost()+"\n"+ config.getUserName()+"\n"+config.ge
 //            window.setStatusBarColor(getResources().getColor(R.color.black));
 //            window.setNavigationBarColor(Color.BLACK);
 //        }
+
+//        try {
+//            List<Map<String, Object>> list= JSONHandler.readJsonFromFile(new File(downloadsDir,"helper.json"));
+//
+//
+//            for (Map<String, Object> jsonItem:
+//                    list) {
+//               MediaItem item= MediaItemHandler.createMediaItem(jsonItem,downloadsDir);
+//
+//              //  System.out.println("-==--==--=-=-=-=-=-= "+ CustomDate.scheduledTimeToCurrentDate(item.getScheduledTime()));
+//               if (item!=null){
+//                   System.out.println( item.toString());
+//                   System.out.println("---------------------------------------\n");
+//                   System.out.println("TIME "+ item.getScheduledTime());
+//               }else {
+//                   System.out.println((Object) null);
+//                   System.out.println("---------------------------------------\n");
+//               }
+//
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+
+
+
+
+
 
 //        System.out.println(MediaItemHandler.validateScheduledTime("07:33")
 //                +"\n");

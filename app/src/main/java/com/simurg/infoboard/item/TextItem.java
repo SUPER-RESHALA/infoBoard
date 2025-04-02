@@ -64,4 +64,15 @@ public class TextItem extends MediaItem{
 FileLogger.log(TAG,"Запустился HANDLER Duration: "+ duration);
     }
 
+    @Override
+    public String toString() {
+        return "TextItem{" +
+                "duration=" + duration +
+                ", text='" + text + '\'' +
+                ", name='" + name + '\'' +
+                ", scheduledTime=" + scheduledTime +
+                ", isScheduled=" + isScheduled +
+                ", file=" + file +
+                '}';
+    }
 }

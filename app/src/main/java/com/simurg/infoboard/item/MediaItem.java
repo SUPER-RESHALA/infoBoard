@@ -57,6 +57,16 @@ MediaItem(File file,String name){
         this.file = file;
     }
 
+    @Override
+    public String toString() {
+        return "MediaItem{" +
+                "name='" + name + '\'' +
+                ", scheduledTime=" + scheduledTime +
+                ", isScheduled=" + isScheduled +
+                ", file=" + file +
+                '}';
+    }
+
     public abstract int getType();
     public abstract void play(MediaPlayerManager mediaPlayerManager);
 }

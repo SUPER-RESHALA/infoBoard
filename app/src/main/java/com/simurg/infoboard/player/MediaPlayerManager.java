@@ -43,6 +43,12 @@ public class MediaPlayerManager {
     public Handler getHandler() {
         return handler;
     }
+    public boolean isScheduled(MediaItem mediaItem){
+        if (!mediaItem.isScheduled()|| mediaItem.getScheduledTime().getTime()==0L){
+            return false;
+        }
+        return true;
+    }
     /**
      * Constructor for MediaPlayerManager.
      * @param textView The TextView for displaying text content.

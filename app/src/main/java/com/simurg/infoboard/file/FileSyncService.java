@@ -1,5 +1,7 @@
 package com.simurg.infoboard.file;
 
+import com.simurg.infoboard.config.Config;
+import com.simurg.infoboard.ftp.FtpConnectionManager;
 import com.simurg.infoboard.ftp.FtpFileInfo;
 import com.simurg.infoboard.ftp.FtpFileManager;
 import com.simurg.infoboard.item.MediaItem;
@@ -33,5 +35,12 @@ public class FileSyncService {
     public boolean isFilePresent(MediaItem mediaItem){
 return mediaItem.getFile().exists();
     }
-
+//public static boolean syncMediaFiles(File jsonFile, Config config){
+//    FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
+//    FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
+//        if (FileChecker.isFileExist(jsonFile)){
+//
+//        }
+//
+//}
 }

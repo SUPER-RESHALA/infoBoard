@@ -37,9 +37,11 @@ import androidx.core.view.WindowInsetsCompat;
 import com.simurg.infoboard.config.Config;
 import com.simurg.infoboard.ftp.FtpConnectionManager;
 import com.simurg.infoboard.item.MediaItem;
+import com.simurg.infoboard.item.MediaItemHandler;
 import com.simurg.infoboard.json.JSONHandler;
 import com.simurg.infoboard.json.JsonObj;
 import com.simurg.infoboard.log.FileLogger;
+import com.simurg.infoboard.mydate.CustomDate;
 import com.simurg.infoboard.player.MediaPlayerManager;
 import com.simurg.infoboard.utils.mapUtils;
 
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         requestPermissions();
         setUiOptions();
         File baseDir= this.getExternalFilesDir(null);
-      // File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+     // File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 //        String path = downloadsDir.getAbsolutePath();
         Config config= new Config(new File( baseDir,"config.json"));
         try {
@@ -133,8 +135,25 @@ Log.i("ConfigValues", config.getHost()+"\n"+ config.getUserName()+"\n"+config.ge
 //            window.setNavigationBarColor(Color.BLACK);
 //        }
 
-
-
+//        System.out.println(MediaItemHandler.validateScheduledTime("07:33")
+//                +"\n");
+//
+//        System.out.println(MediaItemHandler.validateScheduledTime("16:43")
+//                +"\n");
+//
+//        System.out.println(MediaItemHandler.validateScheduledTime("00:03")
+//                +"\n");
+//
+//        System.out.println(MediaItemHandler.validateScheduledTime("24:33")
+//                +"\n");
+//
+//        System.out.println(MediaItemHandler.validateScheduledTime("09099090")
+//                +"\n");
+//        System.out.println("------------\n\n\n----------");
+//        System.out.println(CustomDate.getCurrentDate()
+//                +"\n");
+//        System.out.println(CustomDate.scheduledTimeToCurrentDate(MediaItemHandler.validateScheduledTime("16:43"))
+//                +"\n");
 
 
 //        File appDir= new File(baseDir,"Files");

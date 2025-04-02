@@ -10,9 +10,17 @@ import java.util.Date;
 import java.util.Map;
 
 public class MediaItemHandler {
+    /**
+     * Validates and parses a scheduled time string into a Date object.
+     * This method attempts to parse the given time string. If parsing fails,
+     * it logs an error and returns a default Date object set to the epoch time (0L).
+     *
+     * @param scheduledTime The time string to validate and parse.
+     * @return A Date object representing the parsed time, or a default Date (epoch) if parsing fails.
+     */
     public static Date validateScheduledTime(String scheduledTime){
         Date time;
-        try {
+        try { //TODO проверь работоспособность метода
              time  =CustomDate.parseTime(scheduledTime);
         } catch (ParseException e) {
             FileLogger.logError("validateScheduledTime", "ParseException invalid time:  "+ scheduledTime+"      "+e.getMessage());
@@ -54,7 +62,7 @@ public class MediaItemHandler {
            case MediaItem.TYPE_TEXT:
                    return new TextItem(name, duration,scheduledTime,isScheduled);
            default:
-               // TODO РЕШИТЬ ВОПРОС с NULL
+
                FileLogger.logError("createMediaItem", "Unknown file type: " + jsonItem);
                return  null;
        }
@@ -65,12 +73,15 @@ public class MediaItemHandler {
 
 
 
-
+    ///create MediaItem object appropriate to 1 of 3 types(video,text,image) or null if object incorrect
+    ///@param jsonItem 1 jsonObject from json array: {name:example.mp4,duration:5} and base app folder(example:files)
+    /// @return MediaItem=new Image,Text,Video(Item) or null, if object==MediaItem.TYPE_UNKNOWN
     public  static MediaItem  createMediaItem(Map<String, Object> jsonItem, File baseFolder){
         int duration= checkDuration(jsonItem.get(MediaItem.durationStr));
         String name= checkString(jsonItem.get(MediaItem.nameStr));
         File mediaFile= new File(baseFolder, name);
         boolean isScheduled=jsonItem.containsKey(MediaItem.timeStr);
+        //TODO Посмотреть этот момент по моему :new Date(0L); излишне в строке ниже если брать в учёт  public boolean isScheduled(MediaItem mediaItem)
         Date scheduledTime= isScheduled?validateScheduledTime((String) jsonItem.get(MediaItem.timeStr)):new Date(0L);
         switch (FileType.DetectFileType(jsonItem)){
             case MediaItem.TYPE_IMAGE:

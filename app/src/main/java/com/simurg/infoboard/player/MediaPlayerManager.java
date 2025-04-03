@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class MediaPlayerManager {
     public static final String TAG="MediaPlayerManager";
@@ -42,6 +45,7 @@ public class MediaPlayerManager {
         DefaultDuration = defaultDuration;
     }
     protected Handler handler = new Handler();
+    protected ScheduledExecutorService timerThread= Executors.newSingleThreadScheduledExecutor();
     public Handler getHandler() {
         return handler;
     }
@@ -259,5 +263,12 @@ public void stopHandler(){
         FileLogger.log(TAG,"Stop Handler Called");
     if (handler != null) {
         handler.removeCallbacksAndMessages(null);}
+}
+public void stopExecutor(){
+    FileLogger.log(TAG, "Stop Executor Called");
+if (timerThread!=null&&!timerThread.isShutdown()){
+    timerThread.shutdownNow();
+    timerThread= Executors.newSingleThreadScheduledExecutor();
+}
 }
 }

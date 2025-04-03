@@ -20,7 +20,7 @@ public class MediaItemHandler {
      */
     public static Date validateScheduledTime(String scheduledTime){
         Date time;
-        try { //TODO проверь работоспособность метода
+        try {
              time  =CustomDate.parseTime(scheduledTime);
         } catch (ParseException e) {
             FileLogger.logError("validateScheduledTime", "ParseException invalid time:  "+ scheduledTime+"      "+e.getMessage());

@@ -20,6 +20,8 @@ import com.simurg.infoboard.log.FileLogger;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MediaPlayerManager {
@@ -49,6 +51,13 @@ public class MediaPlayerManager {
         }
         return true;
     }
+         Comparator <MediaItem>comparator= new Comparator<>() {
+            @Override
+            public int compare(MediaItem o, MediaItem t1) {
+                return o.getScheduledTime().compareTo(t1.getScheduledTime());
+            }
+        };
+
     /**
      * Constructor for MediaPlayerManager.
      * @param textView The TextView for displaying text content.

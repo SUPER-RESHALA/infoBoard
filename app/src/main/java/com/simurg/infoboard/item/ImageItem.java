@@ -2,6 +2,8 @@ package com.simurg.infoboard.item;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.ImageView;
 
 import com.simurg.infoboard.log.FileLogger;
@@ -9,6 +11,7 @@ import com.simurg.infoboard.player.MediaPlayerManager;
 
 import java.io.File;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class ImageItem extends MediaItem{
     public static final String TAG= "ImageItem";
@@ -54,10 +57,12 @@ imageView.setImageBitmap(bitmap);
     mp.hideTextView();
     mp.hideVideoView();
     mp.showImageView();
-    FileLogger.log(TAG,"Stop HAndler Called");
-    mp.stopHandler();
+    FileLogger.log(TAG,"Stop Executor Called");
+    mp.stopExecutor();
     FileLogger.log(TAG," Call PostDelayed");
-    mp.getHandler().postDelayed(mp::playNext, duration * 1000);
+        mp.getTimerThread().schedule(() -> {
+            new Handler(Looper.getMainLooper()).post(mp::playNext); // Переключаемся на UI
+        }, duration, TimeUnit.SECONDS);
     }
 
     @Override

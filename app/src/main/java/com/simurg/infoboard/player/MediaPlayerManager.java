@@ -44,11 +44,9 @@ public class MediaPlayerManager {
     public static void setDefaultDuration(int defaultDuration) {
         DefaultDuration = defaultDuration;
     }
-    protected Handler handler = new Handler();
+
     protected ScheduledExecutorService timerThread= Executors.newSingleThreadScheduledExecutor();
-    public Handler getHandler() {
-        return handler;
-    }
+
     public boolean isScheduled(MediaItem mediaItem){
         if (!mediaItem.isScheduled()|| mediaItem.getScheduledTime().getTime()==0L){
             return false;
@@ -61,6 +59,10 @@ public class MediaPlayerManager {
                 return o.getScheduledTime().compareTo(t1.getScheduledTime());
             }
         };
+
+    public ScheduledExecutorService getTimerThread() {
+        return timerThread;
+    }
 
     /**
      * Constructor for MediaPlayerManager.
@@ -180,10 +182,11 @@ public void stratchVideoView(){
      */
     public synchronized void stop(){
         FileLogger.log(TAG,"Stop, mediaFiles.clear()");
-setDefaultView();
-stopHandler();
-currentIndex=-1;
-mediaFiles.clear();
+        setDefaultView();
+        stopExecutor();
+        currentIndex=-1;
+        mediaFiles.clear();
+        sheduledPlaylist.clear();
     }
     public void resume(){}
 //    public void playNext(){}
@@ -209,8 +212,8 @@ public void setDefaultView(){
             FileLogger.log(TAG, "Остановили видео, setDefault");
             videoView.stopPlayback();
         }
-    FileLogger.log(TAG,"hide Video, HideText, set Cat.jpg, stop handler");
-        stopHandler();
+    FileLogger.log(TAG,"hide Video, HideText, set Cat.jpg, stop executor");
+        stopExecutor();
         hideVideoView();
         hideTextView();
         showImageView();
@@ -259,11 +262,6 @@ public void setDefaultView(){
         }
     }
 
-public void stopHandler(){
-        FileLogger.log(TAG,"Stop Handler Called");
-    if (handler != null) {
-        handler.removeCallbacksAndMessages(null);}
-}
 public void stopExecutor(){
     FileLogger.log(TAG, "Stop Executor Called");
 if (timerThread!=null&&!timerThread.isShutdown()){

@@ -1,5 +1,7 @@
 package com.simurg.infoboard.item;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.TextView;
 
@@ -9,6 +11,7 @@ import com.simurg.infoboard.player.MediaPlayerManager;
 import java.io.File;
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class TextItem extends MediaItem{
     public static final String TAG="TextItem";
@@ -57,10 +60,12 @@ public class TextItem extends MediaItem{
     mp.hideVideoView();
     mp.hideImageView();
     mp.showTextView();
-    FileLogger.log(TAG,"Stop HAndler Called");
-    mp.stopHandler();
+    FileLogger.log(TAG,"Stop Executor Called");
+    mp.stopExecutor();
         FileLogger.log(TAG," Call PostDelayed");
-  mp.getHandler().postDelayed(mp::playNext, duration * 1000);
+        mp.getTimerThread().schedule(() -> {
+            new Handler(Looper.getMainLooper()).post(mp::playNext); // Переключаемся на UI
+        }, duration, TimeUnit.SECONDS);
 FileLogger.log(TAG,"Запустился HANDLER Duration: "+ duration);
     }
 

@@ -29,8 +29,15 @@ public class VideoItem extends MediaItem {
     }
     @Override
     public void play(MediaPlayerManager mediaPlayerManager) {
+       mediaPlayerManager.setPlaying(true);
         if (!file.exists()){
             FileLogger.logError(TAG, "Файл не существует(File not exist) "+ file.getAbsolutePath());
+        }
+
+        long fileSize = file.length();
+        if (fileSize > 300 * 1024 * 1024) {
+            FileLogger.logError(TAG, "Видео слишком большое для воспроизведения: " + file.getAbsolutePath());
+            return;
         }
         VideoView videoView= mediaPlayerManager.getVideoView();
         FileLogger.log(TAG, "Получен videoView(Get VidView) "+ videoView.toString() + " | "+ videoView);
@@ -48,10 +55,42 @@ public class VideoItem extends MediaItem {
                     videoView.start();
                 }
             });
-        FileLogger.log(TAG, "Сработал play next");
+        FileLogger.log(TAG, "VideoItem play next");
             videoView.setOnCompletionListener(mp -> mediaPlayerManager.playNext());
 
     }
+    @Override
+    public void playOnce(MediaPlayerManager mediaPlayerManager) {
+       mediaPlayerManager.setPlaying(false);
+       mediaPlayerManager.setDefaultView();
+        if (!file.exists()){
+            FileLogger.logError(TAG, "Файл не существует(File not exist) "+ file.getAbsolutePath());
+        }
+        long fileSize = file.length();
+        if (fileSize > 300 * 1024 * 1024) {
+            FileLogger.logError(TAG, "Видео слишком большое для воспроизведения: " + file.getAbsolutePath());
+            return;
+        }
+        VideoView videoView= mediaPlayerManager.getVideoView();
+        FileLogger.log(TAG, "Получен videoView(Get VidView) "+ videoView.toString() + " | "+ videoView);
+
+
+        mediaPlayerManager.hideImageView();
+        mediaPlayerManager.hideTextView();
+        videoView.setVideoPath(file.getAbsolutePath());
+        FileLogger.log(TAG,"путь до видео настроен(setVideoPath)"+ file.getAbsolutePath());
+        mediaPlayerManager.showVideoView();
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                FileLogger.log(TAG,"Началось проигрывание видео(Start Playing Vid");
+                videoView.start();
+            }
+        });
+ //       FileLogger.log(TAG, "VideoItem playOnce play next");
+       videoView.setOnCompletionListener(mp -> mediaPlayerManager.play());
+    }
+
 
     @Override
     public String toString() {

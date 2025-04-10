@@ -53,6 +53,7 @@ public class TextItem extends MediaItem{
 
     @Override
     public void play(MediaPlayerManager mp) {
+      mp.setPlaying(true);
    TextView textView= mp.getTextView();
         FileLogger.log(TAG, "TextView получен"+textView+"   "+ textView.toString());
     textView.setText(text);
@@ -67,6 +68,21 @@ public class TextItem extends MediaItem{
             new Handler(Looper.getMainLooper()).post(mp::playNext); // Переключаемся на UI
         }, duration, TimeUnit.SECONDS);
 FileLogger.log(TAG,"Запустился HANDLER Duration: "+ duration);
+    }
+
+    @Override
+    public void playOnce(MediaPlayerManager mp) {
+      FileLogger.log("play once text", "call");
+        mp.setPlaying(false);
+      mp.setDefaultView();
+        TextView textView= mp.getTextView();
+        FileLogger.log(TAG, "TextView получен"+textView+"   "+ textView.toString());
+        textView.setText(text);
+        FileLogger.log(TAG,"Text of screen: "+ text);
+        mp.hideVideoView();
+        mp.hideImageView();
+        mp.showTextView();
+        mp.getHandler().postDelayed(mp::play,duration*1000);
     }
 
     @Override

@@ -1,8 +1,10 @@
 package com.simurg.infoboard.player;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,15 +19,19 @@ import com.simurg.infoboard.item.MediaItem;
 import com.simurg.infoboard.item.TextItem;
 import com.simurg.infoboard.item.VideoItem;
 import com.simurg.infoboard.log.FileLogger;
+import com.simurg.infoboard.mydate.CustomDate;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class MediaPlayerManager {
     public static final String TAG="MediaPlayerManager";
@@ -35,8 +41,25 @@ public class MediaPlayerManager {
     public static int DefaultDuration=10;
 
     protected List<MediaItem> mediaFiles;
-    protected List<MediaItem> sheduledPlaylist;
+    protected List<MediaItem> scheduledPlaylist;
     protected int currentIndex = 0;
+    protected int currentIndexScheduled=0;
+    protected int delay=5000;
+    protected Handler handler= new Handler();
+    //Activity mainAct;
+protected boolean isPlaying=false;
+    public Handler getHandler() {
+        return handler;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void setPlaying(boolean playing) {
+        isPlaying = playing;
+    }
+
     /**
      * Sets the default duration for media playback.
      * @param defaultDuration The duration in seconds.
@@ -46,7 +69,37 @@ public class MediaPlayerManager {
     }
 
     protected ScheduledExecutorService timerThread= Executors.newSingleThreadScheduledExecutor();
+    // protected ScheduledExecutorService scheduleThread= Executors.newSingleThreadScheduledExecutor();
+public void createPlaylists(ArrayList<MediaItem> items){
+this.mediaFiles=items;
+    this.scheduledPlaylist=new ArrayList<>();
 
+    for (int i = 0; i < mediaFiles.size(); ) {
+        MediaItem item = mediaFiles.get(i);
+        if (item.isScheduled()) {
+            scheduledPlaylist.add(item);
+            mediaFiles.remove(i); // не увеличиваем i
+        } else {
+            i++;
+        }
+    }
+//
+//    for (MediaItem item:items ) {
+//        if (isScheduled(item)){
+//            this.scheduledPlaylist.remove(item);
+//        }else {
+//            this.mediaFiles.remove(item);
+//        }
+//    }
+    this.currentIndex = (this.mediaFiles == null || this.mediaFiles.isEmpty()) ? -1 : 0;
+    this.currentIndexScheduled = (this.mediaFiles == null || this.mediaFiles.isEmpty()) ? -1 : 0;
+   if (!sortScheduledPlaylist()) FileLogger.logError("createPlaylist", "scheduled playlist is null or error in sort");
+}
+public  boolean sortScheduledPlaylist(){
+    if (this.scheduledPlaylist==null){return  false;}
+    Collections.sort(this.scheduledPlaylist,comparator);
+    return true;
+}
     public boolean isScheduled(MediaItem mediaItem){
         if (!mediaItem.isScheduled()|| mediaItem.getScheduledTime().getTime()==0L){
             return false;
@@ -63,7 +116,20 @@ public class MediaPlayerManager {
     public ScheduledExecutorService getTimerThread() {
         return timerThread;
     }
-
+    public long getTimeDifference(MediaItem item){
+        return  item.getScheduledTime().getTime()-CustomDate.getCurrentDate().getTime();
+    }
+public void startPlaylist(ArrayList<MediaItem> items){
+    stopHandler();
+        if (mediaFiles==null ||scheduledPlaylist==null){
+            setDefaultView();
+        }else{
+            stop();
+            setDefaultView();
+        }
+        createPlaylists(items);
+        play();
+}
     /**
      * Constructor for MediaPlayerManager.
      * @param textView The TextView for displaying text content.
@@ -144,27 +210,121 @@ public void stratchVideoView(){
             nextItem.play(this);
         }
     }
-
-
-
-//    public synchronized void playNext() {
-//        if (mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1) return;
+    public synchronized void play(){
+        Log.e("play", "Вызван метод play()");
+        if(mediaFiles!=null&&!mediaFiles.isEmpty()){
+            playCycle();
+        }
+        if (!isPlaying){
+            playCycle();
+        }
+        schedulerPlayer();
+//        if (scheduledPlaylist!=null&&!scheduledPlaylist.isEmpty()){
+//            Log.i("Schedule", "НЕ пуст не пуст");
+//            if (currentIndexScheduled!=-1 && currentIndexScheduled<scheduledPlaylist.size()){
+//                Log.i("Schedule", "Зашел в if!=-1");
+//                long time= getTimeDifference(scheduledPlaylist.get(currentIndexScheduled));
+//                //long time=scheduledPlaylist.get(currentIndexScheduled).getScheduledTime().getTime()-CustomDate.getCurrentDate().getTime();
+//                Log.i("time","time ="+ time+" File: "+ scheduledPlaylist.get(currentIndexScheduled).getFile().getName());
+//                if (time>=0){
+//                    if (currentIndexScheduled<scheduledPlaylist.size()){
+//                        Log.i("time>=","зашел");
 //
-//        currentIndex = (currentIndex + 1) % mediaFiles.size(); // Цикличный плейлист
-//        // mediaFiles.get(currentIndex).play(this);
-//        MediaItem nextItem = mediaFiles.get(currentIndex);
-//        if (nextItem != null) {
-//            nextItem.play(this);
-//        } else {
-//            FileLogger.logError(TAG, "Ошибка: mediaFiles[" + currentIndex + "] == null");
-//            playNext(); // Пропускаем и идем дальше
+//                            handler.postDelayed(()->{
+//                                Log.e(" ", "Выполняется процесс плана");
+//                                // Твоя задача
+//                                FileLogger.log("time>=0 play Scheduler","playing");
+//                                scheduledPlaylist.get(currentIndexScheduled).playOnce(this);
+//                                currentIndexScheduled++;
+//                                //scheduledPlaylist.remove(currentIndexScheduled).playOnce(this);
+//                            },time);
+//
+//
+//                    }
+//
+//                }else {
+//                    if (isNormalDelay(time)>0){
+//                        if (currentIndexScheduled<scheduledPlaylist.size()){
+//                            Log.i("time<0","зашел");
+//                                handler.postDelayed(()->{
+//                                    FileLogger.log("NormDelay play Scheduler","playing");
+//                                    scheduledPlaylist.get(currentIndexScheduled).playOnce(this);
+//                                    currentIndexScheduled++;
+//
+//                                    // scheduledPlaylist.remove(currentIndexScheduled).playOnce(this);
+//                                },time);
+//                        }
+//                        //TODO запуск таймера
+//                    }
+//                }
+//
+//            }
+//
+//
 //        }
-//    }
+
+    }
+
+    protected void schedulerPlayer(){
+        if (scheduledPlaylist!=null&&!scheduledPlaylist.isEmpty()){
+            Log.i("Schedule", "НЕ пуст не пуст");
+            if (currentIndexScheduled!=-1 && currentIndexScheduled<scheduledPlaylist.size()){
+                Log.i("Schedule", "Зашел в if!=-1");
+                long time= getTimeDifference(scheduledPlaylist.get(currentIndexScheduled));
+                //long time=scheduledPlaylist.get(currentIndexScheduled).getScheduledTime().getTime()-CustomDate.getCurrentDate().getTime();
+                Log.i("time","time ="+ time+" File: "+ scheduledPlaylist.get(currentIndexScheduled).getFile().getName());
+                if (time>=0){
+                    if (currentIndexScheduled<scheduledPlaylist.size()){
+                        Log.i("time>=","зашел");
+
+                        handler.postDelayed(()->{
+                            Log.e(" ", "Выполняется процесс плана");
+                            // Твоя задача
+                            FileLogger.log("time>=0 play Scheduler","playing");
+                            scheduledPlaylist.get(currentIndexScheduled).playOnce(this);
+                            currentIndexScheduled++;
+                            //scheduledPlaylist.remove(currentIndexScheduled).playOnce(this);
+                        },time);
+
+
+                    }
+
+                }else {
+                    if (isNormalDelay(time)>0){
+                        if (currentIndexScheduled<scheduledPlaylist.size()){
+                            Log.i("time<0","зашел");
+                            handler.postDelayed(()->{
+                                FileLogger.log("NormDelay play Scheduler","playing");
+                                scheduledPlaylist.get(currentIndexScheduled).playOnce(this);
+                                currentIndexScheduled++;
+
+                                // scheduledPlaylist.remove(currentIndexScheduled).playOnce(this);
+                            },time);
+                        }
+                        //TODO запуск таймера
+                    }else {
+                        currentIndexScheduled++;
+                        schedulerPlayer();
+                    }
+
+                }
+
+            }
+
+
+        }
+    }
+    public long isNormalDelay(long time){
+        if (Math.abs(time)>delay){
+            return -1;
+        }
+        return CustomDate.getCurrentDate().getTime()+3000;
+    }
 
     /**
      * Starts playing the current media item.
      */
-    public synchronized void play() {
+    public synchronized void playCycle() {
         if( mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1)FileLogger.logError("Play","mediaFiles==null");
         if (mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1) return;
         FileLogger.log(TAG,"применено растягивание VideoView");
@@ -174,19 +334,19 @@ public void stratchVideoView(){
         }else {
             FileLogger.logError("Play", "Currnet index= -1");
         }
-
-      // mediaFiles.get(0).play(this);
     }
+
     /**
      * Stops playback and clears the playlist.
      */
     public synchronized void stop(){
         FileLogger.log(TAG,"Stop, mediaFiles.clear()");
+        setPlaying(false);
         setDefaultView();
         stopExecutor();
         currentIndex=-1;
         mediaFiles.clear();
-        sheduledPlaylist.clear();
+        scheduledPlaylist.clear();
     }
     public void resume(){}
 //    public void playNext(){}
@@ -208,12 +368,14 @@ public void stratchVideoView(){
         textView.setVisibility(View.GONE);
     }
 public void setDefaultView(){
+    setPlaying(false);
         if (videoView.isPlaying()){
-            FileLogger.log(TAG, "Остановили видео, setDefault");
+            FileLogger.log(TAG, "Top video, setDefault");
             videoView.stopPlayback();
         }
     FileLogger.log(TAG,"hide Video, HideText, set Cat.jpg, stop executor");
         stopExecutor();
+
         hideVideoView();
         hideTextView();
         showImageView();
@@ -223,7 +385,15 @@ public void setDefaultView(){
         FileLogger.log(TAG," hideVideoView");
         videoView.setVisibility(View.GONE);
     }
-
+public void pause(){
+    setPlaying(false);
+    if (videoView.isPlaying()){
+        FileLogger.log(TAG, "Top video, setDefault");
+        videoView.stopPlayback();
+    }
+    FileLogger.log(TAG,"hide Video, HideText, set Cat.jpg, stop executor");
+    stopExecutor();
+}
     public void hideImageView() {
         FileLogger.log(TAG," hideImageView");
         imageView.setVisibility(View.GONE);
@@ -269,4 +439,17 @@ if (timerThread!=null&&!timerThread.isShutdown()){
     timerThread= Executors.newSingleThreadScheduledExecutor();
 }
 }
+public void stopHandler(){
+        if (handler!=null){
+            handler.removeCallbacksAndMessages(null);
+        }
+}
+
+//    public void stopSchedulerThread(){
+//        FileLogger.log(TAG, "Stop SchedulerThread Called");
+//        if (scheduleThread!=null&&!scheduleThread.isShutdown()){
+//            scheduleThread.shutdownNow();
+//            scheduleThread= Executors.newSingleThreadScheduledExecutor();
+//        }
+//    }
 }

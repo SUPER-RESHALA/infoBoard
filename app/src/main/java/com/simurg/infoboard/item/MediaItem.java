@@ -69,4 +69,5 @@ MediaItem(File file,String name){
 
     public abstract int getType();
     public abstract void play(MediaPlayerManager mediaPlayerManager);
+    public abstract void playOnce(MediaPlayerManager mediaPlayerManager);
 }

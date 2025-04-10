@@ -1,10 +1,6 @@
 package com.simurg.infoboard.player;
 
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,13 +21,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class MediaPlayerManager {
     public static final String TAG="MediaPlayerManager";
@@ -44,7 +36,7 @@ public class MediaPlayerManager {
     protected List<MediaItem> scheduledPlaylist;
     protected int currentIndex = 0;
     protected int currentIndexScheduled=0;
-    protected int delay=5000;
+    protected int delay=50000;
     protected Handler handler= new Handler();
   //  private int handlerCounter=0;
     //Activity mainAct;
@@ -240,7 +232,7 @@ public void stratchVideoView(){
                     }
 
                 }else {
-                    if (isNormalDelay(time)>0){
+                    if (isNormalDelay(time)!=-1){
                         if (currentIndexScheduled<scheduledPlaylist.size()){
                             Log.i("time<0","зашел");
                           //  handlerCounter++;
@@ -261,15 +253,13 @@ public void stratchVideoView(){
                 }
 
             }
-
-
         }
     }
     public long isNormalDelay(long time){
         if (Math.abs(time)>delay){
             return -1;
         }
-        return CustomDate.getCurrentDate().getTime()+3000;
+        return 0;
     }
 
     /**

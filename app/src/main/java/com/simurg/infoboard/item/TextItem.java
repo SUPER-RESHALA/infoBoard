@@ -82,6 +82,7 @@ FileLogger.log(TAG,"Запустился HANDLER Duration: "+ duration);
         mp.hideVideoView();
         mp.hideImageView();
         mp.showTextView();
+        mp.stopHandler();
         mp.getHandler().postDelayed(mp::play,duration*1000);
     }
 

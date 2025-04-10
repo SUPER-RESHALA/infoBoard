@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
 ArrayList<MediaItem> items= new ArrayList<>();
 String file1ScheduleTime="00:40";
-String time2="04:44";
+String time2="19:58";
 String time3="04:46";
         MediaPlayerManager mp= new MediaPlayerManager(textView,imageView,videoView);
         try {
@@ -147,7 +147,7 @@ String time3="04:46";
             MediaItem file9=new ImageItem(new File(downloadsDir,"file9.jpg"),3,new Date(0L),false);
             MediaItem file10= new ImageItem(new File(downloadsDir,"file10.jpg"),3,new Date(0L),true);
             MediaItem video= new VideoItem(new File(downloadsDir,"video.mp4"),new Date(0L),false);
-            MediaItem video2= new VideoItem(new File(downloadsDir,"video2.mp4"),sch,true);
+            MediaItem video2= new VideoItem(new File(downloadsDir,"video2.mp4"),new Date(0L),false);
             MediaItem video3= new VideoItem(new File(downloadsDir,"video3.mp4"),sch3,true);
             items.add(video2);
             items.add(file1);
@@ -161,7 +161,7 @@ String time3="04:46";
             items.add(file9);
             items.add(file10);
             items.add(video);
-            items.add(video3);
+            // items.add(video3);
             if (!new File(downloadsDir,"file1.png").exists()){
                 System.out.println("horror");
                 finish();

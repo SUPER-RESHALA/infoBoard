@@ -46,6 +46,7 @@ public class MediaPlayerManager {
     protected int currentIndexScheduled=0;
     protected int delay=5000;
     protected Handler handler= new Handler();
+  //  private int handlerCounter=0;
     //Activity mainAct;
 protected boolean isPlaying=false;
     public Handler getHandler() {
@@ -83,14 +84,6 @@ this.mediaFiles=items;
             i++;
         }
     }
-//
-//    for (MediaItem item:items ) {
-//        if (isScheduled(item)){
-//            this.scheduledPlaylist.remove(item);
-//        }else {
-//            this.mediaFiles.remove(item);
-//        }
-//    }
     this.currentIndex = (this.mediaFiles == null || this.mediaFiles.isEmpty()) ? -1 : 0;
     this.currentIndexScheduled = (this.mediaFiles == null || this.mediaFiles.isEmpty()) ? -1 : 0;
    if (!sortScheduledPlaylist()) FileLogger.logError("createPlaylist", "scheduled playlist is null or error in sort");
@@ -120,6 +113,7 @@ public  boolean sortScheduledPlaylist(){
         return  item.getScheduledTime().getTime()-CustomDate.getCurrentDate().getTime();
     }
 public void startPlaylist(ArrayList<MediaItem> items){
+      //  handlerCounter=0;
     stopHandler();
         if (mediaFiles==null ||scheduledPlaylist==null){
             setDefaultView();
@@ -211,7 +205,7 @@ public void stratchVideoView(){
         }
     }
     public synchronized void play(){
-        Log.e("play", "Вызван метод play()");
+        Log.i("play", "Вызван метод play()");
         if(mediaFiles!=null&&!mediaFiles.isEmpty()){
             playCycle();
         }
@@ -219,50 +213,6 @@ public void stratchVideoView(){
             playCycle();
         }
         schedulerPlayer();
-//        if (scheduledPlaylist!=null&&!scheduledPlaylist.isEmpty()){
-//            Log.i("Schedule", "НЕ пуст не пуст");
-//            if (currentIndexScheduled!=-1 && currentIndexScheduled<scheduledPlaylist.size()){
-//                Log.i("Schedule", "Зашел в if!=-1");
-//                long time= getTimeDifference(scheduledPlaylist.get(currentIndexScheduled));
-//                //long time=scheduledPlaylist.get(currentIndexScheduled).getScheduledTime().getTime()-CustomDate.getCurrentDate().getTime();
-//                Log.i("time","time ="+ time+" File: "+ scheduledPlaylist.get(currentIndexScheduled).getFile().getName());
-//                if (time>=0){
-//                    if (currentIndexScheduled<scheduledPlaylist.size()){
-//                        Log.i("time>=","зашел");
-//
-//                            handler.postDelayed(()->{
-//                                Log.e(" ", "Выполняется процесс плана");
-//                                // Твоя задача
-//                                FileLogger.log("time>=0 play Scheduler","playing");
-//                                scheduledPlaylist.get(currentIndexScheduled).playOnce(this);
-//                                currentIndexScheduled++;
-//                                //scheduledPlaylist.remove(currentIndexScheduled).playOnce(this);
-//                            },time);
-//
-//
-//                    }
-//
-//                }else {
-//                    if (isNormalDelay(time)>0){
-//                        if (currentIndexScheduled<scheduledPlaylist.size()){
-//                            Log.i("time<0","зашел");
-//                                handler.postDelayed(()->{
-//                                    FileLogger.log("NormDelay play Scheduler","playing");
-//                                    scheduledPlaylist.get(currentIndexScheduled).playOnce(this);
-//                                    currentIndexScheduled++;
-//
-//                                    // scheduledPlaylist.remove(currentIndexScheduled).playOnce(this);
-//                                },time);
-//                        }
-//                        //TODO запуск таймера
-//                    }
-//                }
-//
-//            }
-//
-//
-//        }
-
     }
 
     protected void schedulerPlayer(){
@@ -276,7 +226,7 @@ public void stratchVideoView(){
                 if (time>=0){
                     if (currentIndexScheduled<scheduledPlaylist.size()){
                         Log.i("time>=","зашел");
-
+                     //   handlerCounter++;
                         handler.postDelayed(()->{
                             Log.e(" ", "Выполняется процесс плана");
                             // Твоя задача
@@ -293,6 +243,7 @@ public void stratchVideoView(){
                     if (isNormalDelay(time)>0){
                         if (currentIndexScheduled<scheduledPlaylist.size()){
                             Log.i("time<0","зашел");
+                          //  handlerCounter++;
                             handler.postDelayed(()->{
                                 FileLogger.log("NormDelay play Scheduler","playing");
                                 scheduledPlaylist.get(currentIndexScheduled).playOnce(this);

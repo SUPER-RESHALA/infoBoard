@@ -149,7 +149,8 @@ public class ImageItem extends MediaItem{
         mp.hideTextView();
         mp.hideVideoView();
         mp.showImageView();
-        FileLogger.log(TAG,"Stop Executor Called");
+        FileLogger.log(TAG,"Stop Handler Called");
+        mp.stopHandler();
         mp.getHandler().postDelayed(mp::play,duration*1000);
       //  FileLogger.log(TAG," Call PostDelayed");
     }

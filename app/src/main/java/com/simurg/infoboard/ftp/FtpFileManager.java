@@ -25,15 +25,12 @@ public class FtpFileManager {
         this.ftpClient = ftpClient;
     }
 
-    public boolean downloadFile(String remoteFileName, String localFilePath) {
+    public boolean downloadFile(String remoteFileName, String localFilePath) throws IOException  {
         try (FileOutputStream fos = new FileOutputStream(new File(localFilePath))) {
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
             boolean success = ftpClient.retrieveFile(remoteFileName, fos);
             FileLogger.log("downloadFtp", "name "+remoteFileName+" LocPath"+localFilePath+ " success "+success);
             return success;
-        } catch (IOException e) {
-            FileLogger.logError("downloadFtp", "Error download file: " + e.getMessage());
-            return false;
         }
     }
     public boolean fileExists(String fileName) {
@@ -66,15 +63,10 @@ public class FtpFileManager {
     /**
      * Навигация к родительской директории.
      */
-    public boolean navigateToParentDirectory() {
-        try {
+    public boolean navigateToParentDirectory() throws IOException {
             boolean success = ftpClient.changeToParentDirectory();
             FileLogger.log("navigate to parent dir","boolean:  "+ success );
             return success;
-        } catch (IOException e) {
-            FileLogger.logError("navigate to parent dir", "Error up parent dir "+  e.getMessage());
-            return false;
-        }
     }
 
     public boolean uploadFile(String localFileName) {

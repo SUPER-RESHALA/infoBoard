@@ -17,12 +17,28 @@ public class JSONHandler {
         Map<String, Object> root = objectMapper.readValue(json, new TypeReference<>() {});
         return (List<Map<String, Object>>) root.get("items"); // Возвращаем массив объектов
     }
+    /**
+     * Reads a JSON file and converts its contents into a list of maps.
+     * <p>
+     * Each map in the list represents a JSON object from the file, with keys as strings and values as generic objects.
+     * This method expects the root element of the JSON file to be an array of objects.
+     * </p>
+     * <p>
+     * The resulting list of maps is typically used to construct {@code MediaItem} instances later in the application.
+     * Each map contains the necessary data to initialize a {@code MediaItem}.
+     * </p>
+     *
+     * @param jsonFile the JSON file to read from
+     * @return a list of maps representing the parsed JSON data
+     * @throws IOException if the file cannot be read or the JSON is invalid
+     */
 public static List<Map<String, Object>> readJsonFromFile(File jsonFile) throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
    return objectMapper.readValue(jsonFile, new TypeReference<List<Map<String, Object>>>() {});}
     public static Map<String, String> readConfigJson(File jsonFile) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(jsonFile, new TypeReference<Map<String, String>>() {});}
+        return objectMapper.readValue(jsonFile, new TypeReference<Map<String, String>>() {});
+    }
 
     public static  ArrayList<String> getNamesFromJson(File jsonFile) throws IOException {
 ArrayList<String> names= new ArrayList<>();

@@ -52,5 +52,40 @@ public static long lastModified(File file){
 
         return customFolder;
     }
+    public static boolean renameFileWithReplace(String originalFilePath, String newFileName) {
+        File originalFile = new File(originalFilePath);
 
+        // Проверяем, существует ли исходный файл
+        if (!originalFile.exists()) {
+            FileLogger.logError("renameFileWithReplace", "File Not found "+ originalFilePath);
+            return false;
+        }
+        if (originalFile.getName().equals(newFileName)) {
+            FileLogger.log("renameFileWithReplace", "Original and new file names are the same. Skipping rename.");
+            return true; // или false, если ты хочешь считать это ошибкой
+        }
+        // Получаем родительскую директорию исходного файла
+        File parentDir = originalFile.getParentFile();
+
+        // Создаём объект File для нового имени в той же директории
+        File newFile = new File(parentDir, newFileName);
+
+        // Если файл с новым именем уже существует, удаляем его
+        if (newFile.exists()) {
+            if (!newFile.delete()) {
+                FileLogger.logError("renameFileWithReplace", "Cant delete existing file "+ newFile.getAbsolutePath());
+                return false;
+            }
+        }
+
+        // Переименовываем файл
+        boolean success = originalFile.renameTo(newFile);
+        if (success) {
+            FileLogger.log("renameFileWithReplace", "renameSuccess "+ newFile.getAbsolutePath());
+        } else {
+            FileLogger.logError("renameFileWithReplace", "Cant rename File "+originalFilePath );
+        }
+
+        return success;
+    }
 }

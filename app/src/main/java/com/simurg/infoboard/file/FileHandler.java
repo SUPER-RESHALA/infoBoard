@@ -5,8 +5,11 @@ import com.simurg.infoboard.log.FileLogger;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class FileHandler {
     public static String readFromFile(File file) throws FileNotFoundException {
@@ -87,5 +90,27 @@ public static long lastModified(File file){
         }
 
         return success;
+    }
+    public static List<File> getAllFilesInDirectory(File directory) {
+        List<File> files = new ArrayList<>();
+
+        if (directory != null && directory.exists() && directory.isDirectory()) {
+            File[] fileArray = directory.listFiles();
+            if (fileArray != null) {
+                for (File file : fileArray) {
+                    if (file.isFile()) { // Только файлы, без папок
+                        files.add(file);
+                    }
+                }
+            }
+        }
+
+        return files;
+    }
+    public static List<File> getAllTmpInDir(File directory, String tmpExtension){
+        return getAllFilesInDirectory(directory)
+                .stream()
+                .filter(file ->file.getName().endsWith(tmpExtension))
+                .collect(Collectors.toList());
     }
 }

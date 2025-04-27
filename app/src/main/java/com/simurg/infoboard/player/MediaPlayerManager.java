@@ -47,6 +47,10 @@ protected  boolean isPlayerOnWork=false;
         return isPlayerOnWork;
     }
 
+    public void setPlayerOnWork(boolean playerOnWork) {
+        isPlayerOnWork = playerOnWork;
+    }
+
     public Handler getHandler() {
         return handler;
     }
@@ -121,6 +125,7 @@ public void startPlaylist(ArrayList<MediaItem> items){
         }
         createPlaylists(items);
         play();
+        setPlayerOnWork(true);
 }
     /**
      * Constructor for MediaPlayerManager.
@@ -294,6 +299,7 @@ public void stratchVideoView(){
         currentIndex=-1;
         mediaFiles.clear();
         scheduledPlaylist.clear();
+        setPlayerOnWork(false);
     }
     public void resume(){}
 //    public void playNext(){}

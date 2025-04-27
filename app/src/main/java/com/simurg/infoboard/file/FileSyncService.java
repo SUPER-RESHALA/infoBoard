@@ -59,6 +59,7 @@ return FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
 //    }
     public static String getTmpPath(File jsonFile, String jsonName){
         return  jsonFile.getParent()+"/"+jsonName+".tmp";
+        //TODO вместо ".tmp" поставь  String tempExtension
     }
     public static File downloadJsonFile(File jsonFile,Config config, Context context, FtpFileManager ftpFileManager){
         if(!NetworkUtils.isNetworkConnected(context)){return null;}
@@ -104,13 +105,14 @@ public  static boolean syncMediaFiles(File jsonFile, Config config, Context cont
             if (isJsonChanged(jsonFile,ftpConnectionManager.getFtpClient())){
                 if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension))return false;
             }else {
-
-
+if (!mp.isPlayerOnWork()){
+    FileLogger.logError("syncMediaFiles", "isPlayerOnWork is false");
+return false;}
             }//else json exist but not changed
         }else {
       if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension))return false;
         }//JSON FILE EXISt IF END
-
+return true;
 }//syncMediaFiles
 public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension) throws IOException {
     if (updateJsonFromFtp(ftpFileManager,jsonFile,config,context)){
@@ -127,7 +129,19 @@ public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File j
     }
    return false;
 }
+public static boolean deleteAllTmp(File baseFolder,String tempFileExtension){
+List<File> tmpList = FileHandler.getAllTmpInDir(baseFolder, tempFileExtension);
+if (tmpList.isEmpty()){
+    FileLogger.log("deleteAllTmp", "list is empty");
+    return true;}
+    for (File file:
+         tmpList) {
+        if (FileHandler.deleteFile(file)){return false;}
+    }
+    return true;
+}
 public static void deleteMissingMedia( ArrayList<MediaItem> playlist){
+    if (playlist.isEmpty())FileLogger.logError("deleteMissingMedia", "playlist is empty");
     Iterator<MediaItem> iterator= playlist.iterator();
     while (iterator.hasNext()){
         if (!iterator.next().getFile().exists()){
@@ -136,6 +150,7 @@ public static void deleteMissingMedia( ArrayList<MediaItem> playlist){
     }
 }
 public static boolean downloadAbsentMedia( ArrayList<MediaItem> playlist, FtpFileManager ftpFileManager, Config config, String tempFileExtension) throws IOException {
+        if (playlist.isEmpty())FileLogger.logError("downloadAbsentMedia", "playlist is empty");
         ArrayList<MediaItem> downloadMedia;
         boolean success;
     downloadMedia=mediaToDownload(playlist);
@@ -147,6 +162,7 @@ public static boolean downloadAbsentMedia( ArrayList<MediaItem> playlist, FtpFil
     return success;
 }
 public static boolean downloadMediaFiles(Config config, FtpFileManager ftpFileManager, ArrayList<MediaItem> mediaPlaylist, String tempExtension) throws IOException {
+        if (mediaPlaylist.isEmpty()) FileLogger.logError("downloadMediaFiles", "mediaPlaylist is empty");
 ftpFileManager.moveCurrentDir(config.getMediaDirName());
     for (MediaItem item:mediaPlaylist
          ) {

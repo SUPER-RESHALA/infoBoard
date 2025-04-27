@@ -6,7 +6,9 @@ import com.simurg.infoboard.mydate.CustomDate;
 
 import java.io.File;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class MediaItemHandler {
@@ -72,7 +74,17 @@ public class MediaItemHandler {
                 return  null;
         }
     }
-
+public static ArrayList<MediaItem> createMediaItemPlaylist(List<Map<String,Object>> mediaList, File baseFolder){
+        ArrayList<MediaItem> mediaPlaylist= new ArrayList<>();
+    for (Map<String,Object> media:
+            mediaList) {
+        MediaItem newItem=createMediaItem(media,baseFolder);
+        if (newItem!=null){
+            mediaPlaylist.add(newItem);
+        }
+    }
+return mediaPlaylist;
+}
 
 
 

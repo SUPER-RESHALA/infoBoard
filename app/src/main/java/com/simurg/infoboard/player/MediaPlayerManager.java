@@ -41,6 +41,12 @@ public class MediaPlayerManager {
   //  private int handlerCounter=0;
     //Activity mainAct;
 protected boolean isPlaying=false;
+protected  boolean isPlayerOnWork=false;
+
+    public boolean isPlayerOnWork() {
+        return isPlayerOnWork;
+    }
+
     public Handler getHandler() {
         return handler;
     }
@@ -166,15 +172,15 @@ public void stratchVideoView(){
     }
 
 
-    /**
-     * Sets the playlist using an array of files.
-     * @param files The array of media files.
-     */
-    public void setPlaylist(File[]files) {
-        this.mediaFiles = createMediaList(files);
-        //currentIndex = 0;
-        currentIndex = (mediaFiles == null || mediaFiles.isEmpty()) ? -1 : 0;
-    }
+//    /**
+//     * Sets the playlist using an array of files.
+//     * @param files The array of media files.
+//     */
+//    public void setPlaylist(File[]files) {
+//        this.mediaFiles = createMediaList(files);
+//        //currentIndex = 0;
+//        currentIndex = (mediaFiles == null || mediaFiles.isEmpty()) ? -1 : 0;
+//    }
 
 
 

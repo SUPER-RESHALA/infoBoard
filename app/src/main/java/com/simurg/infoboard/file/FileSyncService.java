@@ -11,14 +11,19 @@ import com.simurg.infoboard.item.MediaItem;
 import com.simurg.infoboard.item.MediaItemHandler;
 import com.simurg.infoboard.json.JSONHandler;
 import com.simurg.infoboard.log.FileLogger;
+import com.simurg.infoboard.player.MediaPlayerManager;
 import com.simurg.infoboard.utils.NetworkUtils;
 
 import org.apache.commons.net.ftp.FTPClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class FileSyncService {
 
@@ -47,6 +52,11 @@ return mediaItem.getFile().exists();
         String newFilename=tmpFile.getName().replace(".tmp", ".json");
 return FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
     }
+//    public static File tmpToJson(File tmpFile){
+//        String newFilename=tmpFile.getName().replace(".tmp", ".json");
+//         FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
+//         return new File(tmpFile.getParent(),newFilename);
+//    }
     public static String getTmpPath(File jsonFile, String jsonName){
         return  jsonFile.getParent()+"/"+jsonName+".tmp";
     }
@@ -64,8 +74,7 @@ FileLogger.logError("downloadJsonFile","isTMPDeleted: "+isTmpDel);
 return null;
         }
     }
-    public static boolean updateJsonFromFtp(FtpConnectionManager ftpConnectionManager,FtpFileManager ftpFileManager, File jsonFile, Config config, Context context) throws IOException {
-        if (isJsonChanged(jsonFile,ftpConnectionManager.getFtpClient())){
+    public static boolean updateJsonFromFtp(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context){
             File tmpFile=downloadJsonFile(jsonFile,config,context,ftpFileManager);
             if (tmpFile!=null&& tmpFile.exists()){
                 if (tmpToJson(tmpFile)){
@@ -78,19 +87,92 @@ return null;
                 FileLogger.logError("updateJson", "Error: json null or not existed");
                 return false;
             }
+
+    }
+//public static Optional<File> updateJsonFromFtpOptional(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context){
+//   // File tmpFile=Optional.ofNullable(downloadJsonFile(jsonFile,config,context,ftpFileManager));
+//Optional<File> tmpFile= Optional.ofNullable(downloadJsonFile(jsonFile,config,context,ftpFileManager));
+//return tmpFile.map(FileSyncService::tmpToJson);
+//}
+public  static boolean syncMediaFiles(File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension) throws IOException {
+    FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
+    FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
+    if(!NetworkUtils.isNetworkConnected(context)){return false;}
+    ftpConnectionManager.connect(config.getHost());
+    ftpConnectionManager.login(config.getUserName(),config.getPassword());
+        if (FileChecker.isFileExist(jsonFile)){
+            if (isJsonChanged(jsonFile,ftpConnectionManager.getFtpClient())){
+                if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension))return false;
+            }else {
+
+
+            }//else json exist but not changed
         }else {
-            FileLogger.log("updateJson", "json not changed");
+      if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension))return false;
+        }//JSON FILE EXISt IF END
+
+}//syncMediaFiles
+public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension) throws IOException {
+    if (updateJsonFromFtp(ftpFileManager,jsonFile,config,context)){
+        ArrayList<MediaItem> mediaPlaylist= MediaItemHandler.createMediaItemPlaylist(JSONHandler.readJsonFromFile(jsonFile),baseFolder);
+        if (mediaPlaylist.isEmpty()){
+            FileLogger.logError("formPlaylistAndJson", "mediaPlayList isEmpty, isFileExist else part");
             return false;
+        }else {
+            if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension))return false;
+            deleteMissingMedia(mediaPlaylist);
+            mp.startPlaylist(mediaPlaylist);
+            return true;
         }
     }
-//public  static boolean syncMediaFiles(File jsonFile, Config config, Context context){
-//    FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
-//    FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
-//    ftpConnectionManager.connect(config.getHost());
-//    ftpConnectionManager.login(config.getUserName(),config.getPassword());
-//    if(!NetworkUtils.isNetworkConnected(context)){return false;}
-//        if (FileChecker.isFileExist(jsonFile)){
-//            if (isJsonChanged(jsonFile,ftpConnectionManager.getFtpClient()))
+   return false;
+}
+public static void deleteMissingMedia( ArrayList<MediaItem> playlist){
+    Iterator<MediaItem> iterator= playlist.iterator();
+    while (iterator.hasNext()){
+        if (!iterator.next().getFile().exists()){
+            iterator.remove();
+        }
+    }
+}
+public static boolean downloadAbsentMedia( ArrayList<MediaItem> playlist, FtpFileManager ftpFileManager, Config config, String tempFileExtension) throws IOException {
+        ArrayList<MediaItem> downloadMedia;
+        boolean success;
+    downloadMedia=mediaToDownload(playlist);
+    if (downloadMedia.isEmpty())FileLogger.logError("downloadAbsentMedia","mediaPlaylist isEmpty after itemsToDownload" );
+    downloadMedia=existingFtpMedia(downloadMedia,ftpFileManager,config);
+    if (downloadMedia.isEmpty())FileLogger.logError("downloadAbsentMedia","mediaPlaylist isEmpty after existingFtpMedia" );
+    success= downloadMediaFiles(config,ftpFileManager,downloadMedia,tempFileExtension);
+    FileLogger.log("downloadAbsentMedia","downloadMediaFiles: "+success);
+    return success;
+}
+public static boolean downloadMediaFiles(Config config, FtpFileManager ftpFileManager, ArrayList<MediaItem> mediaPlaylist, String tempExtension) throws IOException {
+ftpFileManager.moveCurrentDir(config.getMediaDirName());
+    for (MediaItem item:mediaPlaylist
+         ) {
+        StringBuilder sb= new StringBuilder(item.getFile().getAbsolutePath());
+        sb.append(tempExtension);
+        if (!ftpFileManager.downloadFile(item.getName(),sb.toString()))return false;
+    }
+   return true;
+}
+public static ArrayList<MediaItem> mediaToDownload(ArrayList<MediaItem> mediaItems){
+    return mediaItems.stream().filter(mediaItem -> mediaItem.getFile().exists()).collect(Collectors.toCollection(ArrayList::new));
+}
+public static ArrayList<MediaItem> existingFtpMedia(ArrayList<MediaItem> mediaItems, FtpFileManager ftpFileManager, Config config) throws IOException {
+        ftpFileManager.moveCurrentDir(config.getMediaDirName());
+     return  mediaItems.stream().filter(mediaItem -> ftpFileManager.fileExists(mediaItem.getName())).collect(Collectors.toCollection(ArrayList::new));
+}
+}//class
+
+//if (tmpFile!=null&& tmpFile.exists()){
+// FileLogger.log("syncMediaTmpToJson", "isSuccess: "+ tmpToJson(tmpFile));
+//
+// List<Map<String,Object>> mediaList= JSONHandler.readJsonFromFile(jsonFile);
+// //   MediaItemHandler.createMediaItem(mediaList, baseFolder);
+//}else {
+//    return false;
+//}
 //try{
 //    //TODO подумать об соединении
 //
@@ -103,20 +185,9 @@ return null;
 //
 //
 //
-//if (tmpFile!=null&& tmpFile.exists()){
-// FileLogger.log("syncMediaTmpToJson", "isSuccess: "+ tmpToJson(tmpFile));
-// List<Map<String,Object>> mediaList= JSONHandler.readJsonFromFile(jsonFile);
-// //   MediaItemHandler.createMediaItem(mediaList, baseFolder);
-//}else {
-//    return false;
-//}
 //
 //    ftpFileManager.changeWorkingDirectory(config.getMediaDirName());
 //}catch (IOException e){
 //FileLogger.logError("SyncMediaFiles","Exception: "+ e.getMessage());
 //return false;
 //}
-//        }//JSON FILE EXISt IF END
-//}
-
-}

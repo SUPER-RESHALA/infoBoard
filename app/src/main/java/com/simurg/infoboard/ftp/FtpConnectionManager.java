@@ -79,6 +79,7 @@ public void disconnect(){
             FileLogger.logError(TAG,"Ошибка при отключении сервера "+e.getMessage());
         }
 }
+
 public boolean isConnected(){
       return   ftpClient.isConnected();
 }

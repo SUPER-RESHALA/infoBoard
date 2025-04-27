@@ -35,6 +35,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.simurg.infoboard.config.Config;
+import com.simurg.infoboard.file.FileSyncService;
 import com.simurg.infoboard.ftp.FtpConnectionManager;
 import com.simurg.infoboard.item.ImageItem;
 import com.simurg.infoboard.item.MediaItem;
@@ -96,9 +97,9 @@ public class MainActivity extends AppCompatActivity {
         requestPermissions();
         setUiOptions();
         File baseDir= this.getExternalFilesDir(null);
-    File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+ //   File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 //        String path = downloadsDir.getAbsolutePath();
-        Config config= new Config(new File( downloadsDir,"config.json"));
+        Config config= new Config(new File( baseDir,"config.json"));
         try {
             Map<String,String> configMap= config.getAllConfigValues();
            boolean success= config.setupConfig(configMap);
@@ -124,55 +125,67 @@ public class MainActivity extends AppCompatActivity {
         VideoView videoView= findViewById(R.id.videoView);
         ImageView imageView = findViewById(R.id.imageView);
         TextView textView= findViewById(R.id.textView);
+MediaPlayerManager mp = new MediaPlayerManager(textView,imageView,videoView);
+File jsonFile= new File(baseDir, config.getJsonName());
+new Thread(()->{
+    try {
+        FileSyncService.syncMediaFiles(jsonFile,config,this,baseDir,mp,".tmp");
+    } catch (IOException e) {
+        FileLogger.logError("MAIN", "Error" + e.getMessage()+"  " + Log.getStackTraceString(e));
+        FileSyncService.deleteAllTmp(baseDir,".tmp");
+    }
+}).start();
+
+//todo beign
+//ArrayList<MediaItem> items= new ArrayList<>();
+//String file1ScheduleTime="00:40";
+//String time2="19:58";
+//String time3="04:46";
+//        MediaPlayerManager mp= new MediaPlayerManager(textView,imageView,videoView);
+//        try {
+//         Date sch=   CustomDate.scheduledTimeToCurrentDate(CustomDate.parseTime(file1ScheduleTime));
+//            Date sch2=   CustomDate.scheduledTimeToCurrentDate(CustomDate.parseTime(time2));
+//            Date sch3=   CustomDate.scheduledTimeToCurrentDate(CustomDate.parseTime(time3));
+//              MediaItem file1=new ImageItem(new File(downloadsDir,"file11.jpg"),5,sch2,true);
+//            MediaItem file2=new ImageItem(new File(downloadsDir,"file2.png"),3,new Date(0L),false);
+//            MediaItem file3= new ImageItem(new File(downloadsDir,"file3.jpg"),3,new Date(0L),false);
+//            MediaItem file4=new ImageItem(new File(downloadsDir,"file4.jpg"),3,new Date(0L),false);
+//            MediaItem file5=new ImageItem(new File(downloadsDir,"file5.jpg"),3,new Date(0L),false);
+//            MediaItem file6= new ImageItem(new File(downloadsDir,"file6.jpg"),3,new Date(0L),false);
+//            MediaItem file7=new ImageItem(new File(downloadsDir,"file7.jpg"),3,new Date(0L),false);
+//            MediaItem file8=new ImageItem(new File(downloadsDir,"file8.jpg"),3,new Date(0L),false);
+//            MediaItem file9=new ImageItem(new File(downloadsDir,"file9.jpg"),3,new Date(0L),false);
+//            MediaItem file10= new ImageItem(new File(downloadsDir,"file10.jpg"),3,new Date(0L),true);
+//            MediaItem video= new VideoItem(new File(downloadsDir,"video.mp4"),new Date(0L),false);
+//            MediaItem video2= new VideoItem(new File(downloadsDir,"video2.mp4"),new Date(0L),false);
+//            MediaItem video3= new VideoItem(new File(downloadsDir,"video3.mp4"),sch3,true);
+//            items.add(video2);
+//            items.add(file1);
+//          items.add(file2);
+//          items.add(file3);
+//            items.add(file4);
+//            items.add(file5);
+//            items.add(file6);
+//            items.add(file7);
+//            items.add(file8);
+//            items.add(file9);
+//            items.add(file10);
+//            items.add(video);
+//            // items.add(video3);
+//            if (!new File(downloadsDir,"file1.png").exists()){
+//                System.out.println("horror");
+//                finish();
+//            }
+//
+//                mp.startPlaylist(items);
+//
+//
+//        } catch (ParseException e) {
+//            throw new RuntimeException(e);
+//        }
 
 
-
-ArrayList<MediaItem> items= new ArrayList<>();
-String file1ScheduleTime="00:40";
-String time2="19:58";
-String time3="04:46";
-        MediaPlayerManager mp= new MediaPlayerManager(textView,imageView,videoView);
-        try {
-         Date sch=   CustomDate.scheduledTimeToCurrentDate(CustomDate.parseTime(file1ScheduleTime));
-            Date sch2=   CustomDate.scheduledTimeToCurrentDate(CustomDate.parseTime(time2));
-            Date sch3=   CustomDate.scheduledTimeToCurrentDate(CustomDate.parseTime(time3));
-              MediaItem file1=new ImageItem(new File(downloadsDir,"file11.jpg"),5,sch2,true);
-            MediaItem file2=new ImageItem(new File(downloadsDir,"file2.png"),3,new Date(0L),false);
-            MediaItem file3= new ImageItem(new File(downloadsDir,"file3.jpg"),3,new Date(0L),false);
-            MediaItem file4=new ImageItem(new File(downloadsDir,"file4.jpg"),3,new Date(0L),false);
-            MediaItem file5=new ImageItem(new File(downloadsDir,"file5.jpg"),3,new Date(0L),false);
-            MediaItem file6= new ImageItem(new File(downloadsDir,"file6.jpg"),3,new Date(0L),false);
-            MediaItem file7=new ImageItem(new File(downloadsDir,"file7.jpg"),3,new Date(0L),false);
-            MediaItem file8=new ImageItem(new File(downloadsDir,"file8.jpg"),3,new Date(0L),false);
-            MediaItem file9=new ImageItem(new File(downloadsDir,"file9.jpg"),3,new Date(0L),false);
-            MediaItem file10= new ImageItem(new File(downloadsDir,"file10.jpg"),3,new Date(0L),true);
-            MediaItem video= new VideoItem(new File(downloadsDir,"video.mp4"),new Date(0L),false);
-            MediaItem video2= new VideoItem(new File(downloadsDir,"video2.mp4"),new Date(0L),false);
-            MediaItem video3= new VideoItem(new File(downloadsDir,"video3.mp4"),sch3,true);
-            items.add(video2);
-            items.add(file1);
-          items.add(file2);
-          items.add(file3);
-            items.add(file4);
-            items.add(file5);
-            items.add(file6);
-            items.add(file7);
-            items.add(file8);
-            items.add(file9);
-            items.add(file10);
-            items.add(video);
-            // items.add(video3);
-            if (!new File(downloadsDir,"file1.png").exists()){
-                System.out.println("horror");
-                finish();
-            }
-
-                mp.startPlaylist(items);
-
-
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        //todo end
 //        ScheduledExecutorService sh= Executors.newSingleThreadScheduledExecutor();
 //        sh.schedule(()->{
 //            mp.setDefaultView();
@@ -254,9 +267,6 @@ Log.i("ConfigValues", config.getHost()+"\n"+ config.getUserName()+"\n"+config.ge
 //        if (!appDir.mkdir()){
 //            Log.e("mkDir", "Cant mkDir");
 //        }
-
-
-        File [] files= baseDir.listFiles();
 //System.err.println(FileLogger.getLogFilePath());
 //File logFile= new File(FileLogger.getLogFilePath());
 //if (logFile.exists()){

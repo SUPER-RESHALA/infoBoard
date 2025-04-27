@@ -58,7 +58,7 @@ return FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
 //         return new File(tmpFile.getParent(),newFilename);
 //    }
     public static String getTmpPath(File jsonFile, String jsonName, String tmpFileExtension){
-        return  jsonFile.getParent()+"/"+jsonName+tmpFileExtension;
+        return  jsonFile.getParent()+"/"+jsonName.replace(".json",tmpFileExtension);
     }
     public static File downloadJsonFile(File jsonFile,Config config, Context context, FtpFileManager ftpFileManager, String tmpFileExtension){
         if(!NetworkUtils.isNetworkConnected(context)){return null;}

@@ -48,8 +48,8 @@ public class FileSyncService {
     public boolean isFilePresent(MediaItem mediaItem){
 return mediaItem.getFile().exists();
     }
-    public static boolean tmpToJson(File tmpFile){
-        String newFilename=tmpFile.getName().replace(".tmp", ".json");
+    public static boolean tmpToJson(File tmpFile, String tmpFileExtension){
+        String newFilename=tmpFile.getName().replace(tmpFileExtension, ".json");
 return FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
     }
 //    public static File tmpToJson(File tmpFile){
@@ -57,15 +57,14 @@ return FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
 //         FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
 //         return new File(tmpFile.getParent(),newFilename);
 //    }
-    public static String getTmpPath(File jsonFile, String jsonName){
-        return  jsonFile.getParent()+"/"+jsonName+".tmp";
-        //TODO вместо ".tmp" поставь  String tempExtension
+    public static String getTmpPath(File jsonFile, String jsonName, String tmpFileExtension){
+        return  jsonFile.getParent()+"/"+jsonName+tmpFileExtension;
     }
-    public static File downloadJsonFile(File jsonFile,Config config, Context context, FtpFileManager ftpFileManager){
+    public static File downloadJsonFile(File jsonFile,Config config, Context context, FtpFileManager ftpFileManager, String tmpFileExtension){
         if(!NetworkUtils.isNetworkConnected(context)){return null;}
-        File tmpFile= new File(getTmpPath(jsonFile,config.getJsonName()));
+        File tmpFile= new File(getTmpPath(jsonFile,config.getJsonName(),tmpFileExtension));
         try{
-       ftpFileManager.downloadFile(config.getJsonName(),getTmpPath(jsonFile,config.getJsonName()));
+       ftpFileManager.downloadFile(config.getJsonName(),getTmpPath(jsonFile,config.getJsonName(),tmpFileExtension));
         return tmpFile;
         }catch (IOException e){
 FileLogger.logError("downloadJsonFile", "Exception "+ e.getMessage());
@@ -75,10 +74,10 @@ FileLogger.logError("downloadJsonFile","isTMPDeleted: "+isTmpDel);
 return null;
         }
     }
-    public static boolean updateJsonFromFtp(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context){
-            File tmpFile=downloadJsonFile(jsonFile,config,context,ftpFileManager);
+    public static boolean updateJsonFromFtp(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, String tmpFileExtension){
+            File tmpFile=downloadJsonFile(jsonFile,config,context,ftpFileManager, tmpFileExtension);
             if (tmpFile!=null&& tmpFile.exists()){
-                if (tmpToJson(tmpFile)){
+                if (tmpToJson(tmpFile,tmpFileExtension)){
                     return true;
                 }else {
                     FileLogger.logError("updateJson", "Error in tmpToJson");
@@ -115,7 +114,7 @@ return false;}
 return true;
 }//syncMediaFiles
 public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension) throws IOException {
-    if (updateJsonFromFtp(ftpFileManager,jsonFile,config,context)){
+    if (updateJsonFromFtp(ftpFileManager,jsonFile,config,context,tempFileExtension)){
         ArrayList<MediaItem> mediaPlaylist= MediaItemHandler.createMediaItemPlaylist(JSONHandler.readJsonFromFile(jsonFile),baseFolder);
         if (mediaPlaylist.isEmpty()){
             FileLogger.logError("formPlaylistAndJson", "mediaPlayList isEmpty, isFileExist else part");

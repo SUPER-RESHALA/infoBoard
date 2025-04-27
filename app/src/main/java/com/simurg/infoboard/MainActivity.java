@@ -129,10 +129,10 @@ MediaPlayerManager mp = new MediaPlayerManager(textView,imageView,videoView);
 File jsonFile= new File(baseDir, config.getJsonName());
 new Thread(()->{
     try {
-        FileSyncService.syncMediaFiles(jsonFile,config,this,baseDir,mp,".tmp");
+        FileSyncService.syncMediaFiles(jsonFile,config,this,baseDir,mp,".tmp",this);
     } catch (IOException e) {
         FileLogger.logError("MAIN", "Error" + e.getMessage()+"  " + Log.getStackTraceString(e));
-        FileSyncService.deleteAllTmp(baseDir,".tmp");
+     //   FileSyncService.deleteAllTmp(baseDir,".tmp");
     }
 }).start();
 

@@ -1,5 +1,6 @@
 package com.simurg.infoboard.file;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -94,7 +95,7 @@ return null;
 //Optional<File> tmpFile= Optional.ofNullable(downloadJsonFile(jsonFile,config,context,ftpFileManager));
 //return tmpFile.map(FileSyncService::tmpToJson);
 //}
-public  static boolean syncMediaFiles(File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension) throws IOException {
+public  static boolean syncMediaFiles(File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity) throws IOException {
     FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
     FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
     if(!NetworkUtils.isNetworkConnected(context)){return false;}
@@ -102,27 +103,29 @@ public  static boolean syncMediaFiles(File jsonFile, Config config, Context cont
     ftpConnectionManager.login(config.getUserName(),config.getPassword());
         if (FileChecker.isFileExist(jsonFile)){
             if (isJsonChanged(jsonFile,ftpConnectionManager.getFtpClient())){
-                if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension))return false;
+                if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension, activity))return false;
             }else {
 if (!mp.isPlayerOnWork()){
     FileLogger.logError("syncMediaFiles", "isPlayerOnWork is false");
 return false;}
             }//else json exist but not changed
         }else {
-      if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension))return false;
+      if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension,activity))return false;
         }//JSON FILE EXISt IF END
 return true;
 }//syncMediaFiles
-public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension) throws IOException {
+public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity) throws IOException {
     if (updateJsonFromFtp(ftpFileManager,jsonFile,config,context,tempFileExtension)){
         ArrayList<MediaItem> mediaPlaylist= MediaItemHandler.createMediaItemPlaylist(JSONHandler.readJsonFromFile(jsonFile),baseFolder);
         if (mediaPlaylist.isEmpty()){
             FileLogger.logError("formPlaylistAndJson", "mediaPlayList isEmpty, isFileExist else part");
             return false;
         }else {
-            if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension))return false;
-            deleteMissingMedia(mediaPlaylist);
-            mp.startPlaylist(mediaPlaylist);
+            if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension)){return false;}
+             deleteMissingMedia(mediaPlaylist);
+            activity.runOnUiThread(()->{
+                mp.startPlaylist(mediaPlaylist);
+            });
             return true;
         }
     }
@@ -172,7 +175,7 @@ ftpFileManager.moveCurrentDir(config.getMediaDirName());
    return true;
 }
 public static ArrayList<MediaItem> mediaToDownload(ArrayList<MediaItem> mediaItems){
-    return mediaItems.stream().filter(mediaItem -> mediaItem.getFile().exists()).collect(Collectors.toCollection(ArrayList::new));
+    return mediaItems.stream().filter(mediaItem -> !mediaItem.getFile().exists()).collect(Collectors.toCollection(ArrayList::new));
 }
 public static ArrayList<MediaItem> existingFtpMedia(ArrayList<MediaItem> mediaItems, FtpFileManager ftpFileManager, Config config) throws IOException {
         ftpFileManager.moveCurrentDir(config.getMediaDirName());

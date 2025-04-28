@@ -124,9 +124,21 @@ public static long lastModified(File file){
     }
     public  static List<File> getUnusedFiles(File directory, List<File> media){
         List<File> filesInDirectory = getAllFilesInDirectory(directory);
-        return media
+        return filesInDirectory
                 .stream()
-                .filter(file -> !filesInDirectory.contains(file))
+                .filter(file -> !media.contains(file))
+                .filter(file -> !file.getName().contains(".json"))
                 .collect(Collectors.toList());
+    }
+    public static boolean delUnusedFiles(File directory, List<File> usefulMedia){
+        List<File> filesToDelete=getUnusedFiles(directory,usefulMedia);
+        if (filesToDelete.isEmpty()){
+            FileLogger.log("delUnusedFiles","filesToDel empty");
+            return true;}
+        for (File file:
+        filesToDelete) {
+            if(!FileHandler.deleteFile(file)){FileLogger.logError("delUnusedFiles", "Error delete file "+ file.getAbsolutePath());}
+        }
+        return true;
     }
 }

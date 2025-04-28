@@ -1,5 +1,6 @@
 package com.simurg.infoboard.file;
 
+import com.simurg.infoboard.item.MediaItem;
 import com.simurg.infoboard.log.FileLogger;
 
 import java.io.File;
@@ -8,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -140,5 +142,14 @@ public static long lastModified(File file){
             if(!FileHandler.deleteFile(file)){FileLogger.logError("delUnusedFiles", "Error delete file "+ file.getAbsolutePath());}
         }
         return true;
+    }
+    public static boolean isNullCollection(List<MediaItem> mediaCollection){
+        if (mediaCollection
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()).isEmpty()){
+return true;
+        }
+        return false;
     }
 }

@@ -136,7 +136,7 @@ new Thread(()->{
      //   FileSyncService.deleteAllTmp(baseDir,".tmp");
     }
 }).start();
-        //TODO Clear unused file(old media)& Create method startPlaylist when app start & add exception handle(delete tmp when download)& create method when all playlist files ==null (endless cycle)
+        //TODO Clear unused file(old media)|DONE(Not testing)|& Create method startPlaylist when app start & add exception handle(delete tmp when download)& create method when all playlist files ==null (endless cycle)|Done| not testing
 //todo beign
 //ArrayList<MediaItem> items= new ArrayList<>();
 //String file1ScheduleTime="00:40";

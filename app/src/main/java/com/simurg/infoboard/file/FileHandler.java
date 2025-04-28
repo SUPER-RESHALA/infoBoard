@@ -108,7 +108,8 @@ public static long lastModified(File file){
         return files;
     }
     public static List<File> getAllTmpInDir(File directory, String tmpExtension){
-        return getAllFilesInDirectory(directory)
+        List<File> files= getAllFilesInDirectory(directory);
+        return files
                 .stream()
                 .filter(file ->file.getName().endsWith(tmpExtension))
                 .collect(Collectors.toList());

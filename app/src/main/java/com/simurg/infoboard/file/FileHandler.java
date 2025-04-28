@@ -121,4 +121,11 @@ public static long lastModified(File file){
         }
         return true;
     }
+    public  static List<File> getUnusedFiles(File directory, List<File> media){
+        List<File> filesInDirectory = getAllFilesInDirectory(directory);
+        return media
+                .stream()
+                .filter(file -> !filesInDirectory.contains(file))
+                .collect(Collectors.toList());
+    }
 }

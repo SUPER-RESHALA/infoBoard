@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         TextView textView= findViewById(R.id.textView);
 MediaPlayerManager mp = new MediaPlayerManager(textView,imageView,videoView);
 File jsonFile= new File(baseDir, config.getJsonName());
+Log.i("deleteAllTmp", "success is: "+FileSyncService.deleteAllTmp(baseDir,".tmp"));
 new Thread(()->{
     try {
         FileSyncService.syncMediaFiles(jsonFile,config,this,baseDir,mp,".tmp",this);
@@ -135,7 +136,7 @@ new Thread(()->{
      //   FileSyncService.deleteAllTmp(baseDir,".tmp");
     }
 }).start();
-
+        //TODO Clear unused file(old media)& Create method startPlaylist when app start & add exception handle(delete tmp when download)& create method when all playlist files ==null (endless cycle)
 //todo beign
 //ArrayList<MediaItem> items= new ArrayList<>();
 //String file1ScheduleTime="00:40";

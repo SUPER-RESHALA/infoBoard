@@ -2,6 +2,7 @@ package com.simurg.infoboard.file;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.simurg.infoboard.config.Config;
@@ -122,6 +123,7 @@ public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File j
             return false;
         }else {
             if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension)){return false;}
+            FileHandler.renameAllTmpWithReplace(baseFolder,tempFileExtension);
              deleteMissingMedia(mediaPlaylist);
             activity.runOnUiThread(()->{
                 mp.startPlaylist(mediaPlaylist);
@@ -138,7 +140,7 @@ if (tmpList.isEmpty()){
     return true;}
     for (File file:
          tmpList) {
-        if (FileHandler.deleteFile(file)){return false;}
+        if (!FileHandler.deleteFile(file)){return false;}
     }
     return true;
 }
@@ -181,6 +183,7 @@ public static ArrayList<MediaItem> existingFtpMedia(ArrayList<MediaItem> mediaIt
         ftpFileManager.moveCurrentDir(config.getMediaDirName());
      return  mediaItems.stream().filter(mediaItem -> ftpFileManager.fileExists(mediaItem.getName())).collect(Collectors.toCollection(ArrayList::new));
 }
+
 }//class
 
 //if (tmpFile!=null&& tmpFile.exists()){

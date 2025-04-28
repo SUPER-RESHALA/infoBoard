@@ -113,4 +113,12 @@ public static long lastModified(File file){
                 .filter(file ->file.getName().endsWith(tmpExtension))
                 .collect(Collectors.toList());
     }
+    public static  boolean renameAllTmpWithReplace(File directory, String tmpExtension){
+        List<File> tmpFiles=getAllTmpInDir(directory, tmpExtension);
+        for (File file:
+             tmpFiles) {
+            if (!renameFileWithReplace(file.getAbsolutePath(),file.getName().replace(tmpExtension,"")))return false;
+        }
+        return true;
+    }
 }

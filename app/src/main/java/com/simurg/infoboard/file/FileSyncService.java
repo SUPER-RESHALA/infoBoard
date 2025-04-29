@@ -145,7 +145,7 @@ if (tmpList.isEmpty()){
     return true;
 }
 public static void deleteMissingMedia( ArrayList<MediaItem> playlist){
-    if (playlist.isEmpty())FileLogger.logError("deleteMissingMedia", "playlist is empty");
+    if (playlist.isEmpty()){FileLogger.logError("deleteMissingMedia", "playlist is empty");return;}
     Iterator<MediaItem> iterator= playlist.iterator();
     while (iterator.hasNext()){
         if (!iterator.next().getFile().exists()){
@@ -183,32 +183,18 @@ public static ArrayList<MediaItem> existingFtpMedia(ArrayList<MediaItem> mediaIt
         ftpFileManager.moveCurrentDir(config.getMediaDirName());
      return  mediaItems.stream().filter(mediaItem -> ftpFileManager.fileExists(mediaItem.getName())).collect(Collectors.toCollection(ArrayList::new));
 }
-
+public static boolean startPlaylistNoDownload(File jsonFile,File baseFolder, MediaPlayerManager mp, Activity activity) throws IOException {
+        if (FileChecker.isFileExist(jsonFile)){
+            List<Map<String, Object>> jsonList = JSONHandler.readJsonFromFile(jsonFile);
+            ArrayList<MediaItem> mediaPlaylist= MediaItemHandler.createMediaItemPlaylist(jsonList,baseFolder);
+                deleteMissingMedia(mediaPlaylist);
+                if (mediaPlaylist.isEmpty()){
+                    return false;
+                }else {
+                    activity.runOnUiThread(()->{mp.startPlaylist(mediaPlaylist);});
+                    return true;
+                }
+        }
+        return false;
+}
 }//class
-
-//if (tmpFile!=null&& tmpFile.exists()){
-// FileLogger.log("syncMediaTmpToJson", "isSuccess: "+ tmpToJson(tmpFile));
-//
-// List<Map<String,Object>> mediaList= JSONHandler.readJsonFromFile(jsonFile);
-// //   MediaItemHandler.createMediaItem(mediaList, baseFolder);
-//}else {
-//    return false;
-//}
-//try{
-//    //TODO подумать об соединении
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//    ftpFileManager.changeWorkingDirectory(config.getMediaDirName());
-//}catch (IOException e){
-//FileLogger.logError("SyncMediaFiles","Exception: "+ e.getMessage());
-//return false;
-//}

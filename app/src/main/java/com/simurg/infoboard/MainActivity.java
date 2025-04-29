@@ -35,6 +35,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.simurg.infoboard.config.Config;
+import com.simurg.infoboard.file.FileHandler;
 import com.simurg.infoboard.file.FileSyncService;
 import com.simurg.infoboard.ftp.FtpConnectionManager;
 import com.simurg.infoboard.item.ImageItem;
@@ -128,6 +129,11 @@ public class MainActivity extends AppCompatActivity {
 MediaPlayerManager mp = new MediaPlayerManager(textView,imageView,videoView);
 File jsonFile= new File(baseDir, config.getJsonName());
 Log.i("deleteAllTmp", "success is: "+FileSyncService.deleteAllTmp(baseDir,".tmp"));
+//        try {
+//            FileSyncService.startPlaylistNoDownload(jsonFile,baseDir,mp,this);
+//        } catch (IOException e) {
+//          Log.e("MAINERROR", e.getMessage()+"   "+Log.getStackTraceString(e));
+//        }
 new Thread(()->{
     try {
         FileSyncService.syncMediaFiles(jsonFile,config,this,baseDir,mp,".tmp",this);
@@ -136,9 +142,13 @@ new Thread(()->{
      //   FileSyncService.deleteAllTmp(baseDir,".tmp");
     }
 }).start();
-        //TODO Clear unused file(old media)|DONE(Not testing)|& Create method startPlaylist when app start & add exception handle(delete tmp when download)& create method when all playlist files ==null (endless cycle)|Done| not testing
-//todo beign
-//ArrayList<MediaItem> items= new ArrayList<>();
+//        ArrayList<File> items= new ArrayList<>();
+//        items.add(new File(baseDir, "office.jpg"));
+//        items.add(new File(baseDir, "clock.jpg"));
+//        FileHandler.delUnusedFiles(baseDir,items);
+        //TODO Clear unused file(old media)|DONE|& Create method startPlaylist when app start|Done no testing| & add exception handle(delete tmp when download)& create method when all playlist files ==null (endless cycle)|Done| not testing
+//todo begin
+
 //String file1ScheduleTime="00:40";
 //String time2="19:58";
 //String time3="04:46";

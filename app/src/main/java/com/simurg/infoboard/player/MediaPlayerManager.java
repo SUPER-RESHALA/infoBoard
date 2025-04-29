@@ -112,7 +112,7 @@ public  boolean sortScheduledPlaylist(){
         return timerThread;
     }
     public long getTimeDifference(MediaItem item){
-        return  item.getScheduledTime().getTime()-CustomDate.getCurrentDate().getTime();
+       return  CustomDate.scheduledTimeToCurrentDate(item.getScheduledTime()).getTime()-CustomDate.getCurrentDate().getTime();
     }
 public void startPlaylist(ArrayList<MediaItem> items){
       //  handlerCounter=0;

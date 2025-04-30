@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.simurg.infoboard.R;
+import com.simurg.infoboard.file.FileHandler;
 import com.simurg.infoboard.file.FileType;
 import com.simurg.infoboard.item.ImageItem;
 import com.simurg.infoboard.item.MediaItem;
@@ -89,6 +90,7 @@ this.mediaFiles=items;
     this.currentIndex = (this.mediaFiles == null || this.mediaFiles.isEmpty()) ? -1 : 0;
     this.currentIndexScheduled = (this.mediaFiles == null || this.mediaFiles.isEmpty()) ? -1 : 0;
    if (!sortScheduledPlaylist()) FileLogger.logError("createPlaylist", "scheduled playlist is null or error in sort");
+   if (this.currentIndex!=-1|| this.currentIndexScheduled!=-1){setPlayerOnWork(true);}
 }
 public  boolean sortScheduledPlaylist(){
     if (this.scheduledPlaylist==null){return  false;}
@@ -123,9 +125,9 @@ public void startPlaylist(ArrayList<MediaItem> items){
             stop();
             setDefaultView();
         }
-        createPlaylists(items);
+    if (FileHandler.isNullCollection(items)){FileLogger.logError("startPlayList", "Null elements collection: true");return;}
+    createPlaylists(items);
         play();
-        setPlayerOnWork(true);
 }
     /**
      * Constructor for MediaPlayerManager.

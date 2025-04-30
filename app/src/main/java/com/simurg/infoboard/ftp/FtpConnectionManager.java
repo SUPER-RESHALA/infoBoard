@@ -37,7 +37,9 @@ public class FtpConnectionManager {
             return false;
         }
     }
-
+public void setTimeout(int millis){
+        ftpClient.setConnectTimeout(millis);
+}
     public boolean login(String username, String password) {
         try {
             FileLogger.log(TAG,"Авторизация пользователя: " + username);

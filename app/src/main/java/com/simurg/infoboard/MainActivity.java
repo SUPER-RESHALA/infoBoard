@@ -38,6 +38,7 @@ import com.simurg.infoboard.config.Config;
 import com.simurg.infoboard.file.FileHandler;
 import com.simurg.infoboard.file.FileSyncService;
 import com.simurg.infoboard.ftp.FtpConnectionManager;
+import com.simurg.infoboard.ftp.FtpFileManager;
 import com.simurg.infoboard.item.ImageItem;
 import com.simurg.infoboard.item.MediaItem;
 import com.simurg.infoboard.item.MediaItemHandler;
@@ -128,20 +129,37 @@ public class MainActivity extends AppCompatActivity {
         TextView textView= findViewById(R.id.textView);
 MediaPlayerManager mp = new MediaPlayerManager(textView,imageView,videoView);
 File jsonFile= new File(baseDir, config.getJsonName());
-Log.i("deleteAllTmp", "success is: "+FileSyncService.deleteAllTmp(baseDir,".tmp"));
+//Log.i("deleteAllTmp", "success is: "+FileSyncService.deleteAllTmp(baseDir,".tmp"));
 //        try {
 //            FileSyncService.startPlaylistNoDownload(jsonFile,baseDir,mp,this);
 //        } catch (IOException e) {
 //          Log.e("MAINERROR", e.getMessage()+"   "+Log.getStackTraceString(e));
 //        }
-new Thread(()->{
-    try {
-        FileSyncService.syncMediaFiles(jsonFile,config,this,baseDir,mp,".tmp",this);
-    } catch (IOException e) {
-        FileLogger.logError("MAIN", "Error" + e.getMessage()+"  " + Log.getStackTraceString(e));
-     //   FileSyncService.deleteAllTmp(baseDir,".tmp");
-    }
-}).start();
+
+        FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
+        FtpFileManager f=new FtpFileManager(ftpConnectionManager.getFtpClient());
+        FileSyncService.updateJsonFromFtp(f,jsonFile,config, this,".tmp");
+        //  new Thread(()->{
+//      ftpConnectionManager.connect(config.getHost());
+//      ftpConnectionManager.login(config.getUserName(),config.getPassword());
+//      FileSyncService.downloadJsonFile(jsonFile,config,this,new FtpFileManager(ftpConnectionManager.getFtpClient()),".tmp");
+//
+//  }).start();
+//        new Handler().postDelayed(()->
+//        {if (ftpConnectionManager.isConnected()){
+//            ftpConnectionManager.disconnect();
+//        }
+//        }, 50000);
+
+//new Thread(()->{
+//    try {
+//        FileSyncService.syncMediaFiles(jsonFile,config,this,baseDir,mp,".tmp",this);
+//    } catch (IOException e) {
+//        FileLogger.logError("MAIN", "Error" + e.getMessage()+"  " + Log.getStackTraceString(e));
+//     //   FileSyncService.deleteAllTmp(baseDir,".tmp");
+//    }
+//}).start();
+
 //        ArrayList<File> items= new ArrayList<>();
 //        items.add(new File(baseDir, "office.jpg"));
 //        items.add(new File(baseDir, "clock.jpg"));

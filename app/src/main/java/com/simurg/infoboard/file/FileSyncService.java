@@ -102,6 +102,7 @@ public  static boolean syncMediaFiles(File jsonFile, Config config, Context cont
     if(!NetworkUtils.isNetworkConnected(context)){return false;}
     ftpConnectionManager.connect(config.getHost());
     ftpConnectionManager.login(config.getUserName(),config.getPassword());
+    ftpConnectionManager.setTimeout(500000);
         if (FileChecker.isFileExist(jsonFile)){
             if (isJsonChanged(jsonFile,ftpConnectionManager.getFtpClient())){
                 if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension, activity))return false;

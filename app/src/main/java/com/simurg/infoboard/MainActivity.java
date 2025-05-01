@@ -68,7 +68,13 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<String[]> permissionLauncher;
-    private String prefsName="myPrefs";
+    private final String prefsName="myPrefs";
+    private ScheduledExecutorService mainSchedule;
+    private MediaPlayerManager mp;
+  private Config config;
+  File baseDir;
+  File jsonFile;
+  String tempFileExtension=".tmp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,10 +104,10 @@ public class MainActivity extends AppCompatActivity {
         );
         requestPermissions();
         setUiOptions();
-        File baseDir= this.getExternalFilesDir(null);
+         baseDir= this.getExternalFilesDir(null);
  //   File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 //        String path = downloadsDir.getAbsolutePath();
-        Config config= new Config(new File( baseDir,"config.json"));
+         config= new Config(new File( baseDir,"config.json"));
         try {
             Map<String,String> configMap= config.getAllConfigValues();
            boolean success= config.setupConfig(configMap);
@@ -113,38 +119,25 @@ public class MainActivity extends AppCompatActivity {
             textView.setVisibility(View.VISIBLE);
             Log.e("Config", "ErrorConfig Setup");
             Handler handler= new Handler();
-            handler.postDelayed(()->{
-                finish();
-                System.exit(0);
-            },30000);
+            // System.exit(0);
+            handler.postDelayed(this::finish,30000);
             return;
         }
         SharedPreferences prefs= getApplicationContext().getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor=prefs.edit();
+        if (config.getId()==null){FileLogger.logError("onCreate", "getId Is null");
+        this.finish();
+        return;}//ПОД ВОПРОСОМ
         editor.putString("id",config.getId());
-        editor.commit();
+        editor.apply();
         FileLogger.init(this, prefsName);
-        VideoView videoView= findViewById(R.id.videoView);
+        VideoView videoView = findViewById(R.id.videoView);
         ImageView imageView = findViewById(R.id.imageView);
-        TextView textView= findViewById(R.id.textView);
-MediaPlayerManager mp = new MediaPlayerManager(textView,imageView,videoView);
-File jsonFile= new File(baseDir, config.getJsonName());
-//Log.i("deleteAllTmp", "success is: "+FileSyncService.deleteAllTmp(baseDir,".tmp"));
-//        try {
-//            FileSyncService.startPlaylistNoDownload(jsonFile,baseDir,mp,this);
-//        } catch (IOException e) {
-//          Log.e("MAINERROR", e.getMessage()+"   "+Log.getStackTraceString(e));
-//        }
-
-        FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
-        FtpFileManager f=new FtpFileManager(ftpConnectionManager.getFtpClient());
-
-        //TODO Clear unused file(old media)|DONE|& Create method startPlaylist when app start|Done no testing| & add exception handle(delete tmp when download)& create method when all playlist files ==null (endless cycle)|Done| not testing
-//todo begin
-
+        TextView textView1 = findViewById(R.id.textView);
+     mp = new MediaPlayerManager(textView1, imageView, videoView);
+        jsonFile= new File(baseDir, config.getJsonName());
 Log.i("ConfigValues", config.getHost()+"\n"+ config.getUserName()+"\n"+config.getPassword()+"\n"
         +config.getMediaDirName()+"\n"+ config.getJsonName()+"\n"+config.getId());
-
     }//ON CREATE
     private void requestPermissions() {
         String[] permissions = {
@@ -158,4 +151,34 @@ Log.i("ConfigValues", config.getHost()+"\n"+ config.getUserName()+"\n"+config.ge
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
     }
+    @Override
+protected void onStart(){
+super.onStart();
+if (mainSchedule==null|| mainSchedule.isShutdown()){
+    mainSchedule= Executors.newSingleThreadScheduledExecutor();
+startPlaySchedule();
+}
+    }
+    protected void onDestroy(){
+        super.onDestroy();
+if (mainSchedule!=null&&!mainSchedule.isShutdown()){
+    mainSchedule.shutdown();
+    mainSchedule=null;// Под вопросом
+}
+        if (mp != null) {
+            if (mp.getHandler() != null) {
+                mp.getHandler().removeCallbacksAndMessages(null);
+            }
+            if (mp.getTimerThread() != null && !mp.getTimerThread().isShutdown()) {
+                mp.getTimerThread().shutdown();
+            }
+        }
+    }
+    public void startPlaySchedule(){
+        mainSchedule.scheduleWithFixedDelay(FileSyncService.syncAndStartPlaylist(jsonFile,config,this,baseDir,mp, tempFileExtension,this),3,10, TimeUnit.MINUTES);
+    }
+    //TODO 1.mp.getHandler().removeCallbacksAndMessages(может быть конкретный Runnable сделать)
+    // 2. Сделать отдельный поток для отправки логов на сервер
+    // 3. Вместо onDestroy использовать onStop()  важно для AndroidTV
+
 }

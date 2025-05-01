@@ -62,23 +62,15 @@ return FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
     public static String getTmpPath(File jsonFile, String jsonName, String tmpFileExtension){
         return  jsonFile.getParent()+"/"+jsonName.replace(".json",tmpFileExtension);
     }
-    public static File downloadJsonFile(File jsonFile,Config config, Context context, FtpFileManager ftpFileManager, String tmpFileExtension){
-        if(!NetworkUtils.isNetworkConnected(context)){return null;}
+    public static File downloadJsonFile(File jsonFile,Config config, Context context, FtpFileManager ftpFileManager, String tmpFileExtension) throws IOException {
         File tmpFile= new File(getTmpPath(jsonFile,config.getJsonName(),tmpFileExtension));
-        try{
+        if(!NetworkUtils.isNetworkConnected(context)){return tmpFile;}
        ftpFileManager.downloadFile(config.getJsonName(),getTmpPath(jsonFile,config.getJsonName(),tmpFileExtension));
         return tmpFile;
-        }catch (IOException e){
-FileLogger.logError("downloadJsonFile", "Exception "+ e.getMessage());
-            boolean isTmpDel=false;
-if (tmpFile.exists()){ isTmpDel=FileHandler.deleteFile(tmpFile);}
-FileLogger.logError("downloadJsonFile","isTMPDeleted: "+isTmpDel);
-return null;
-        }
     }
-    public static boolean updateJsonFromFtp(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, String tmpFileExtension){
+    public static boolean updateJsonFromFtp(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, String tmpFileExtension) throws IOException {
             File tmpFile=downloadJsonFile(jsonFile,config,context,ftpFileManager, tmpFileExtension);
-            if (tmpFile!=null&& tmpFile.exists()){
+            if (tmpFile.exists()){
                 if (tmpToJson(tmpFile,tmpFileExtension)){
                     return true;
                 }else {

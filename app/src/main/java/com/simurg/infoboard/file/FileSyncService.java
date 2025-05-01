@@ -109,7 +109,8 @@ public  static boolean syncMediaFiles(File jsonFile, Config config, Context cont
             }else {
 if (!mp.isPlayerOnWork()){
     FileLogger.logError("syncMediaFiles", "isPlayerOnWork is false");
-return false;}
+return playWithoutJsonUpdate(ftpFileManager,jsonFile,config, context, baseFolder, mp,tempFileExtension, activity);}
+return mp.isPlayerOnWork();
             }//else json exist but not changed
         }else {
       if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension,activity))return false;
@@ -134,6 +135,21 @@ public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File j
     }
    return false;
 }
+    public  static boolean playWithoutJsonUpdate(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity) throws IOException {
+            ArrayList<MediaItem> mediaPlaylist= MediaItemHandler.createMediaItemPlaylist(JSONHandler.readJsonFromFile(jsonFile),baseFolder);
+            if (mediaPlaylist.isEmpty()){
+                FileLogger.logError("formPlaylistAndJson", "mediaPlayList isEmpty, isFileExist else part");
+                return false;
+            }else {
+                if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension)){return false;}
+                FileHandler.renameAllTmpWithReplace(baseFolder,tempFileExtension);
+                deleteMissingMedia(mediaPlaylist);
+                activity.runOnUiThread(()->{
+                    mp.startPlaylist(mediaPlaylist);
+                });
+                return true;
+            }
+    }
 public static boolean deleteAllTmp(File baseFolder,String tempFileExtension){
 List<File> tmpList = FileHandler.getAllTmpInDir(baseFolder, tempFileExtension);
 if (tmpList.isEmpty()){

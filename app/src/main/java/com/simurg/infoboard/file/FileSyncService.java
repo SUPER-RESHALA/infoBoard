@@ -98,7 +98,7 @@ public  static boolean syncMediaFiles(File jsonFile, Config config, Context cont
         if (FileChecker.isFileExist(jsonFile)){
             if (isJsonChanged(jsonFile,ftpConnectionManager.getFtpClient())){
                 ftpConnectionManager.reconnect(config);
-                if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension, activity))return false;
+                return formPlaylistAndJson(ftpFileManager, jsonFile, config, context, baseFolder, mp, tempFileExtension, activity);
             }else {
 if (!mp.isPlayerOnWork()){
     FileLogger.logError("syncMediaFiles", "isPlayerOnWork is false");
@@ -108,9 +108,8 @@ return mp.isPlayerOnWork();
             }//else json exist but not changed
         }else {
             ftpConnectionManager.reconnect(config);
-      if (!formPlaylistAndJson(ftpFileManager,jsonFile,config,context,baseFolder,mp,tempFileExtension,activity))return false;
+            return formPlaylistAndJson(ftpFileManager, jsonFile, config, context, baseFolder, mp, tempFileExtension, activity);
         }//JSON FILE EXISt IF END
-return true;
 }//syncMediaFiles
 public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity) throws IOException {
     if (updateJsonFromFtp(ftpFileManager,jsonFile,config,context,tempFileExtension)){

@@ -152,4 +152,19 @@ return true;
         }
         return false;
     }
+    public static List<File>mediaItemListToFile( List<MediaItem> mediaItemList){
+        return  mediaItemList.stream().map(MediaItem::getFile).collect(Collectors.toList());
+    }
+    public static boolean delUnusedFilesFromMediaItem(File directory, List<MediaItem> usefulMedia){
+        List<File> files= mediaItemListToFile(usefulMedia);
+        List<File> filesToDelete=getUnusedFiles(directory,files);
+        if (filesToDelete.isEmpty()){
+            FileLogger.log("delUnusedFiles","filesToDel empty");
+            return true;}
+        for (File file:
+                filesToDelete) {
+            if(!FileHandler.deleteFile(file)){FileLogger.logError("delUnusedFiles", "Error delete file "+ file.getAbsolutePath());}
+        }
+        return true;
+    }
 }

@@ -124,6 +124,7 @@ public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File j
             activity.runOnUiThread(()->{
                 mp.startPlaylist(mediaPlaylist);
             });
+            FileHandler.delUnusedFilesFromMediaItem(baseFolder,mediaPlaylist);
             return true;
         }
     }
@@ -132,7 +133,7 @@ public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File j
     public  static boolean playWithoutJsonUpdate(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity) throws IOException {
             ArrayList<MediaItem> mediaPlaylist= MediaItemHandler.createMediaItemPlaylist(JSONHandler.readJsonFromFile(jsonFile),baseFolder);
             if (mediaPlaylist.isEmpty()){
-                FileLogger.logError("formPlaylistAndJson", "mediaPlayList isEmpty, isFileExist else part");
+                FileLogger.logError("playWithoutJsonUpdate", "mediaPlayList isEmpty, isFileExist else part");
                 return false;
             }else {
                 if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension)){return false;}
@@ -141,6 +142,7 @@ public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File j
                 activity.runOnUiThread(()->{
                     mp.startPlaylist(mediaPlaylist);
                 });
+                FileHandler.delUnusedFilesFromMediaItem(baseFolder,mediaPlaylist);
                 return true;
             }
     }
@@ -207,5 +209,17 @@ public static boolean startPlaylistNoDownload(File jsonFile,File baseFolder, Med
                 }
         }
         return false;
+}
+public static Runnable syncAndStartPlaylist(File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity){
+        return ()->{
+            try {
+                FileLogger.log("syncAndStartPlaylist", "syncOnProcess");
+                syncMediaFiles(jsonFile,config, context,baseFolder,mp,tempFileExtension,activity);
+            } catch (IOException e) {
+                FileLogger.logError("syncAndStartPlaylist", "Exception in method: "+ e.getMessage()+ "    "+Log.getStackTraceString(e));
+                deleteAllTmp(baseFolder,tempFileExtension);
+            }
+
+        };
 }
 }//class

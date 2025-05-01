@@ -88,9 +88,9 @@ return FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
 //Optional<File> tmpFile= Optional.ofNullable(downloadJsonFile(jsonFile,config,context,ftpFileManager));
 //return tmpFile.map(FileSyncService::tmpToJson);
 //}
-public  static boolean syncMediaFiles(File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity) throws IOException {
-    FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
-    FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
+public  static boolean syncMediaFiles(FtpConnectionManager ftpConnectionManager, FtpFileManager ftpFileManager,File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity) throws IOException {
+//    FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
+//    FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
     if(!NetworkUtils.isNetworkConnected(context)){return false;}
     ftpConnectionManager.connect(config.getHost());
     ftpConnectionManager.login(config.getUserName(),config.getPassword());
@@ -212,12 +212,21 @@ public static boolean startPlaylistNoDownload(File jsonFile,File baseFolder, Med
 }
 public static Runnable syncAndStartPlaylist(File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity){
         return ()->{
+            FtpConnectionManager ftpConnectionManager = new FtpConnectionManager();
+            FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
             try {
+//                ftpConnectionManager.connect(config.getHost());
+//                ftpConnectionManager.login()
                 FileLogger.log("syncAndStartPlaylist", "syncOnProcess");
-                syncMediaFiles(jsonFile,config, context,baseFolder,mp,tempFileExtension,activity);
+                syncMediaFiles(ftpConnectionManager,ftpFileManager,jsonFile,config, context,baseFolder,mp,tempFileExtension,activity);
             } catch (IOException e) {
                 FileLogger.logError("syncAndStartPlaylist", "Exception in method: "+ e.getMessage()+ "    "+Log.getStackTraceString(e));
                 deleteAllTmp(baseFolder,tempFileExtension);
+            }finally {
+                if (ftpConnectionManager.isConnected()){
+                    ftpConnectionManager.logout();
+                    ftpConnectionManager.disconnect();
+                }
             }
 
         };

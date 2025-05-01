@@ -138,7 +138,6 @@ File jsonFile= new File(baseDir, config.getJsonName());
 
         FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
         FtpFileManager f=new FtpFileManager(ftpConnectionManager.getFtpClient());
-        FileSyncService.updateJsonFromFtp(f,jsonFile,config, this,".tmp");
         //  new Thread(()->{
 //      ftpConnectionManager.connect(config.getHost());
 //      ftpConnectionManager.login(config.getUserName(),config.getPassword());

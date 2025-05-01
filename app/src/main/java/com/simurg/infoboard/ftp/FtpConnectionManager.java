@@ -1,5 +1,6 @@
 package com.simurg.infoboard.ftp;
 
+import com.simurg.infoboard.config.Config;
 import com.simurg.infoboard.log.FileLogger;
 
 import org.apache.commons.net.ftp.FTPClient;
@@ -84,6 +85,12 @@ public void disconnect(){
 
 public boolean isConnected(){
       return   ftpClient.isConnected();
+}
+public void reconnect(Config config){
+        if (!isConnected()){
+            connect(config.getHost());
+            login(config.getUserName(),config.getPassword());
+        }
 }
 public FTPClient getFtpClient(){
         return ftpClient;

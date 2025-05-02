@@ -25,7 +25,7 @@ public class MediaItemHandler {
         try {
              time  =CustomDate.parseTime(scheduledTime);
         } catch (ParseException e) {
-            FileLogger.logError("validateScheduledTime", "ParseException invalid time:  "+ scheduledTime+"      "+e.getMessage());
+            FileLogger.logError("validateScheduledTime", "ParseFailed invalid time:  "+ scheduledTime+"      "+e.getMessage());
              return new Date(0L);
           //  throw  new RuntimeException();
         }

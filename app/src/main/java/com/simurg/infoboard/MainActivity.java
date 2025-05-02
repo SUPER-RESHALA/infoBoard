@@ -138,6 +138,11 @@ public class MainActivity extends AppCompatActivity {
         jsonFile= new File(baseDir, config.getJsonName());
 Log.i("ConfigValues", config.getHost()+"\n"+ config.getUserName()+"\n"+config.getPassword()+"\n"
         +config.getMediaDirName()+"\n"+ config.getJsonName()+"\n"+config.getId());
+        try {
+            FileSyncService.startPlaylistNoDownload(jsonFile,baseDir,mp,this);
+        } catch (IOException e) {
+            FileLogger.logError("startPlaylistNoDownload IN MAIN EXCEPTION", e.getMessage());
+        }
     }//ON CREATE
     private void requestPermissions() {
         String[] permissions = {

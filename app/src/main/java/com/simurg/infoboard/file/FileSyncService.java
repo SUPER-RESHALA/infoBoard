@@ -42,8 +42,12 @@ public class FileSyncService {
      */
     public static boolean isJsonChanged(File jsonFile, FTPClient ftpClient) throws IOException {
         FtpFileInfo ftpFileInfo= FtpFileManager.getFileInfo(jsonFile.getName(),ftpClient);
-        FileLogger.log("isJsonChanged",ftpFileInfo.toString()+"  FtpGetSize "+ftpFileInfo.getSize());
-       return FileHandler.getFileSize(jsonFile) != ftpFileInfo.getSize() ||
+        FileLogger.log("isJsonChanged", ftpFileInfo != null ? ftpFileInfo + "  FtpGetSize " + ftpFileInfo.getSize() : "File not found on server");
+        if (ftpFileInfo == null) {
+            FileLogger.logError("isJsonChanged", "ftpFileInfo is null");
+            return false;
+        }
+        return FileHandler.getFileSize(jsonFile) != ftpFileInfo.getSize() ||
                FileHandler.lastModified(jsonFile) != ftpFileInfo.getModificationTime().getTime();
     }
 

@@ -188,6 +188,7 @@ if (mainSchedule!=null&&!mainSchedule.isShutdown()){
         }
         if (logScheduler!=null&&!logScheduler.isShutdown()){
             logScheduler.shutdown();
+            logScheduler=null;
         }
     }
     public void startPlaySchedule(){

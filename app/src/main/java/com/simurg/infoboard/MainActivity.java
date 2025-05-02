@@ -168,7 +168,7 @@ startPlaySchedule();
 }
 if (logScheduler==null|| logScheduler.isShutdown()){
     logScheduler= Executors.newSingleThreadScheduledExecutor();
-    LogsToFtp.sendLogsToFtp(config,logDirPath,this,prefsName);
+    startSendLogs();
 }
 
     }
@@ -192,6 +192,9 @@ if (mainSchedule!=null&&!mainSchedule.isShutdown()){
     }
     public void startPlaySchedule(){
         mainSchedule.scheduleWithFixedDelay(FileSyncService.syncAndStartPlaylist(jsonFile,config,this,baseDir,mp, tempFileExtension,this),3,10, TimeUnit.MINUTES);
+    }
+    public void startSendLogs(){
+        logScheduler.scheduleWithFixedDelay( (()->{ LogsToFtp.sendLogsToFtp(config,logDirPath,this,prefsName);}),1,1,TimeUnit.MINUTES);
     }
     //TODO 1.mp.getHandler().removeCallbacksAndMessages(может быть конкретный Runnable сделать)(CHECKED, DENIED)
     // 2. Сделать отдельный поток для отправки логов на сервер(DONE)

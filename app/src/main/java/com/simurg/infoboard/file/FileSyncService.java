@@ -222,7 +222,7 @@ public static Runnable syncAndStartPlaylist(File jsonFile, Config config, Contex
 //                ftpConnectionManager.connect(config.getHost());
 //                ftpConnectionManager.login()
                 FileLogger.log("syncAndStartPlaylist", "syncOnProcess");
-                syncMediaFiles(ftpConnectionManager,ftpFileManager,jsonFile,config, context,baseFolder,mp,tempFileExtension,activity);
+               FileLogger.log("syncAndStartPlaylist", "sync is "+syncMediaFiles(ftpConnectionManager,ftpFileManager,jsonFile,config, context,baseFolder,mp,tempFileExtension,activity));
             } catch (IOException e) {
                 FileLogger.logError("syncAndStartPlaylist", "Exception in method: "+ e.getMessage()+ "    "+Log.getStackTraceString(e));
                 deleteAllTmp(baseFolder,tempFileExtension);

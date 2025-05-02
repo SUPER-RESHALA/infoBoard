@@ -46,6 +46,7 @@ import com.simurg.infoboard.item.VideoItem;
 import com.simurg.infoboard.json.JSONHandler;
 import com.simurg.infoboard.json.JsonObj;
 import com.simurg.infoboard.log.FileLogger;
+import com.simurg.infoboard.log.LogsToFtp;
 import com.simurg.infoboard.mydate.CustomDate;
 import com.simurg.infoboard.player.MediaPlayerManager;
 import com.simurg.infoboard.utils.mapUtils;
@@ -70,11 +71,13 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<String[]> permissionLauncher;
     private final String prefsName="myPrefs";
     private ScheduledExecutorService mainSchedule;
+    private ScheduledExecutorService logScheduler;
     private MediaPlayerManager mp;
   private Config config;
   File baseDir;
   File jsonFile;
   String tempFileExtension=".tmp";
+  String logDirPath="/InfoBoardLogs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +166,11 @@ if (mainSchedule==null|| mainSchedule.isShutdown()){
     mainSchedule= Executors.newSingleThreadScheduledExecutor();
 startPlaySchedule();
 }
+if (logScheduler==null|| logScheduler.isShutdown()){
+    logScheduler= Executors.newSingleThreadScheduledExecutor();
+    LogsToFtp.sendLogsToFtp(config,logDirPath,this,prefsName);
+}
+
     }
     protected void onDestroy(){
         super.onDestroy();
@@ -178,12 +186,15 @@ if (mainSchedule!=null&&!mainSchedule.isShutdown()){
                 mp.getTimerThread().shutdown();
             }
         }
+        if (logScheduler!=null&&!logScheduler.isShutdown()){
+            logScheduler.shutdown();
+        }
     }
     public void startPlaySchedule(){
         mainSchedule.scheduleWithFixedDelay(FileSyncService.syncAndStartPlaylist(jsonFile,config,this,baseDir,mp, tempFileExtension,this),3,10, TimeUnit.MINUTES);
     }
-    //TODO 1.mp.getHandler().removeCallbacksAndMessages(может быть конкретный Runnable сделать)
-    // 2. Сделать отдельный поток для отправки логов на сервер
+    //TODO 1.mp.getHandler().removeCallbacksAndMessages(может быть конкретный Runnable сделать)(CHECKED, DENIED)
+    // 2. Сделать отдельный поток для отправки логов на сервер(DONE)
     // 3. Вместо onDestroy использовать onStop()  важно для AndroidTV
 
 }

@@ -69,7 +69,7 @@ public class FtpFileManager {
             return success;
     }
 
-    public boolean uploadFile(String localFileName) {
+    public boolean uploadFile(String localFileName) throws IOException {
         try (FileInputStream fis = new FileInputStream(new File(localFileName))) {
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
             String remoteFileName = new File(localFileName).getName(); // Получаем имя файла
@@ -84,9 +84,6 @@ public class FtpFileManager {
             }
             FileLogger.log("UploadFtpFile", localFileName+ "Boolean "+success);
             return success;
-        } catch (IOException e) {
-            FileLogger.logError("FTPFileManager uploadFile", "Error UploadFtpFile "+ e.getMessage());
-            return false;
         }
     }
     public boolean deleteFile(String fileName) {
@@ -128,4 +125,51 @@ public class FtpFileManager {
         FileLogger.log("moveCurrentDir", "success move to "+ path);
         return  true;
     }//end of method
+
+    /**
+     * Обеспечивает существование директории на сервере FTP и переходит в неё.
+     *
+     * @param ftpFileManager объект FTPFileManager для работы с сервером.
+     * @param fullPath полный путь к директории (например, "2024/12.2024").
+     * @return true, если успешно перешёл в директорию; false, если возникла ошибка.
+     */
+    public boolean ensureAndChangeToDirectory(FtpFileManager ftpFileManager, String fullPath)  {
+        String[] directories = fullPath.split("/"); // Разбиваем путь на компоненты
+        String currentPath = "";
+
+        for (String dir : directories) {
+            currentPath += "/" + dir; // Строим текущий путь по мере продвижения
+
+            // Пытаемся перейти в текущую директорию
+            boolean changed = ftpFileManager.changeWorkingDirectory(currentPath);
+
+            if (!changed) {
+                // Если директория не существует, создаём её
+                boolean created = ftpFileManager.createDirectory(currentPath);
+
+                if (!created) {
+                    FileLogger.logError("FTPFileManager/ensureAndChangeToDirectory", "Error mkdir "+currentPath );
+                    return false;
+                }
+
+                // После создания пробуем снова перейти в неё
+                ftpFileManager.changeWorkingDirectory(currentPath);
+            }
+        }
+        return true; // Успешно перешли в конечную директорию
+    }
+    /**
+     * Создание поддиректории в текущей рабочей директории.
+     */
+    public boolean createDirectory(String directoryName) {
+        try {
+            boolean success = ftpClient.makeDirectory(directoryName);
+            FileLogger.log("Create Directory", "CurrDir "+directoryName+"  "+success);
+            if (!success){ FileLogger.logError("Create Directory", "CurrDir "+directoryName+"  "+success);}
+            return success;
+        } catch (IOException e) {
+            FileLogger.logError("Error mkDir:", e.getMessage()+"  "+Log.getStackTraceString(e) );
+            return false;
+        }
+    }
 }

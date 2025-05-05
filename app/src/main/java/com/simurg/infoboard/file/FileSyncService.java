@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -122,7 +123,7 @@ public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File j
             FileLogger.logError("formPlaylistAndJson", "mediaPlayList isEmpty, isFileExist else part");
             return false;
         }else {
-            if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension)){return false;}
+            if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension,context)){return false;}
             FileHandler.renameAllTmpWithReplace(baseFolder,tempFileExtension);
              deleteMissingMedia(mediaPlaylist);
             activity.runOnUiThread(()->{
@@ -140,7 +141,7 @@ public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File j
                 FileLogger.logError("playWithoutJsonUpdate", "mediaPlayList isEmpty, isFileExist else part");
                 return false;
             }else {
-                if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension)){return false;}
+                if (!downloadAbsentMedia(mediaPlaylist,ftpFileManager,config,tempFileExtension,context)){return false;}
                 FileHandler.renameAllTmpWithReplace(baseFolder,tempFileExtension);
                 deleteMissingMedia(mediaPlaylist);
                 activity.runOnUiThread(()->{
@@ -170,7 +171,7 @@ public static void deleteMissingMedia( ArrayList<MediaItem> playlist){
         }
     }
 }
-public static boolean downloadAbsentMedia( ArrayList<MediaItem> playlist, FtpFileManager ftpFileManager, Config config, String tempFileExtension) throws IOException {
+public static boolean downloadAbsentMedia( ArrayList<MediaItem> playlist, FtpFileManager ftpFileManager, Config config, String tempFileExtension, Context context) throws IOException {
         if (playlist.isEmpty())FileLogger.logError("downloadAbsentMedia", "playlist is empty");
         ArrayList<MediaItem> downloadMedia;
         boolean success;
@@ -178,18 +179,28 @@ public static boolean downloadAbsentMedia( ArrayList<MediaItem> playlist, FtpFil
     if (downloadMedia.isEmpty())FileLogger.logError("downloadAbsentMedia","mediaPlaylist isEmpty after itemsToDownload" );
     downloadMedia=existingFtpMedia(downloadMedia,ftpFileManager,config);
     if (downloadMedia.isEmpty())FileLogger.logError("downloadAbsentMedia","mediaPlaylist isEmpty after existingFtpMedia" );
-    success= downloadMediaFiles(config,ftpFileManager,downloadMedia,tempFileExtension);
+    success= downloadMediaFiles(config,ftpFileManager,downloadMedia,tempFileExtension, context);
     FileLogger.log("downloadAbsentMedia","downloadMediaFiles: "+success);
     return success;
 }
-public static boolean downloadMediaFiles(Config config, FtpFileManager ftpFileManager, ArrayList<MediaItem> mediaPlaylist, String tempExtension) throws IOException {
+public static boolean downloadMediaFiles(Config config, FtpFileManager ftpFileManager, ArrayList<MediaItem> mediaPlaylist, String tempExtension,Context context) throws IOException {
         if (mediaPlaylist.isEmpty()) FileLogger.logError("downloadMediaFiles", "mediaPlaylist is empty");
 ftpFileManager.moveCurrentDir(config.getMediaDirName());
     for (MediaItem item:mediaPlaylist
          ) {
         StringBuilder sb= new StringBuilder(item.getFile().getAbsolutePath());
         sb.append(tempExtension);
-        if (!ftpFileManager.downloadFile(item.getName(),sb.toString()))return false;
+        File tmpFile= new File(sb.toString());
+      //  if (!Objects.equals(ftpFileManager.getCurrentWorkingDirectory(), config.getMediaDirName())){ftpFileManager.moveCurrentDir(config.getMediaDirName());}
+        while(true){
+            if (!NetworkUtils.isNetworkConnected(context)){return false;}
+            if (!Objects.equals(ftpFileManager.getCurrentWorkingDirectory(), config.getMediaDirName())){ftpFileManager.moveCurrentDir(config.getMediaDirName());}
+long remoteFileSize=ftpFileManager.getFileSize(item.getName());
+            ftpFileManager.downloadFile(item.getName(),sb.toString());
+            long localFileSize=FileHandler.getFileSize(tmpFile);
+            if (remoteFileSize==localFileSize)break;
+        }
+
     }
    return true;
 }

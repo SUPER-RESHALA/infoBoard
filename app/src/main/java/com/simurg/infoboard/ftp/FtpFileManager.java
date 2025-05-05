@@ -172,4 +172,11 @@ public class FtpFileManager {
             return false;
         }
     }
+    public long getFileSize(String fileName) throws IOException {
+        FTPFile[] files = ftpClient.listFiles(fileName);
+        if (files.length == 1) {
+            return files[0].getSize();
+        }
+        return -1; // Файл не найден
+    }
 }

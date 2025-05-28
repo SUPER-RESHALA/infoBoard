@@ -3,6 +3,7 @@ package com.simurg.infoboard.file;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.simurg.infoboard.config.Config;
@@ -230,6 +231,7 @@ public static Runnable syncAndStartPlaylist(File jsonFile, Config config, Contex
             FtpConnectionManager ftpConnectionManager = new FtpConnectionManager();
             FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
             try {
+                Toast.makeText(context,"НАЧАТ ПРОЦЕСС СИНХРОНИЗАЦИИ(КАЖДЫЕ 10 МИНУТ), ФАЙЛЫ ПРОВЕРЯЮТСЯ", Toast.LENGTH_LONG).show();
 //                ftpConnectionManager.connect(config.getHost());
 //                ftpConnectionManager.login()
                 FileLogger.log("syncAndStartPlaylist", "syncOnProcess");

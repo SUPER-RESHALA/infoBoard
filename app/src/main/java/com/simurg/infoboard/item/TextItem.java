@@ -63,6 +63,7 @@ public class TextItem extends MediaItem{
     mp.showTextView();
     FileLogger.log(TAG,"Stop Executor Called");
     mp.stopExecutor();
+    mp.restartExecutor();
         FileLogger.log(TAG," Call PostDelayed");
         mp.getTimerThread().schedule(() -> {
             new Handler(Looper.getMainLooper()).post(mp::playNext); // Переключаемся на UI

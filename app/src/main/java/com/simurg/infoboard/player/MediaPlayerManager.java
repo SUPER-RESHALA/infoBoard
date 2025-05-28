@@ -390,9 +390,13 @@ public void pause(){
 public void stopExecutor(){
     FileLogger.log(TAG, "Stop Executor Called");
 if (timerThread!=null&&!timerThread.isShutdown()){
-    timerThread.shutdownNow();
+    timerThread.shutdown();
     timerThread= Executors.newSingleThreadScheduledExecutor();
 }
+}
+public void restartExecutor(){
+        if (timerThread==null||timerThread.isShutdown()){
+            timerThread= Executors.newSingleThreadScheduledExecutor();}
 }
 public void stopHandler(){
         if (handler!=null){

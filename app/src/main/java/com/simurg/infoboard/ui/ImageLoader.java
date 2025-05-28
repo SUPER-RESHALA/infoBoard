@@ -12,10 +12,10 @@ import java.io.File;
 public class ImageLoader {
     public static void setImage(ImageView imageView, File file) {
         if (!file.exists()) {
-            FileLogger.logError("ImageLoader", "File not exist");
+            FileLogger.logError("ImageLoader", "File not exist "+file.getAbsolutePath());
             return;
         }
-
+FileLogger.log("FIle is", file.getAbsolutePath());
         DisplayMetrics metrics = imageView.getContext().getResources().getDisplayMetrics();
         int screenWidth = metrics.widthPixels;
         int screenHeight = metrics.heightPixels;

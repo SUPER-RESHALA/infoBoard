@@ -134,9 +134,14 @@ public class ImageItem extends MediaItem{
     mp.showImageView();
     FileLogger.log(TAG,"Stop Executor Called");
     mp.stopExecutor();
+    mp.restartExecutor();
     FileLogger.log(TAG," Call PostDelayed");
         mp.getTimerThread().schedule(() -> {
-            new Handler(Looper.getMainLooper()).post(mp::playNext); // Переключаемся на UI
+            new Handler(Looper.getMainLooper()).post(()->{
+                FileLogger.log("playNext", super.file.getAbsolutePath());
+                        mp.playNext();
+                    }
+                 ); // Переключаемся на UI
         }, duration, TimeUnit.SECONDS);
     }
 

@@ -49,8 +49,9 @@ public class FileSyncService {
             FileLogger.logError("isJsonChanged", "ftpFileInfo is null");
             return false;
         }
-        return FileHandler.getFileSize(jsonFile) != ftpFileInfo.getSize() ||
-               FileHandler.lastModified(jsonFile) != ftpFileInfo.getModificationTime().getTime();
+        return FileHandler.getFileSize(jsonFile) != ftpFileInfo.getSize();
+//                ||
+//               FileHandler.lastModified(jsonFile) != ftpFileInfo.getModificationTime().getTime();
     }
 
     public boolean isFilePresent(MediaItem mediaItem){
@@ -114,6 +115,7 @@ return mp.isPlayerOnWork();
             }//else json exist but not changed
         }else {
             ftpConnectionManager.reconnect(config);
+            FileLogger.log("syncMediaFile", "FormPlaylistAndJson  fileExist false");
             return formPlaylistAndJson(ftpFileManager, jsonFile, config, context, baseFolder, mp, tempFileExtension, activity);
         }//JSON FILE EXISt IF END
 }//syncMediaFiles
@@ -137,6 +139,7 @@ public  static boolean formPlaylistAndJson(FtpFileManager ftpFileManager, File j
    return false;
 }
     public  static boolean playWithoutJsonUpdate(FtpFileManager ftpFileManager, File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity) throws IOException {
+        FileLogger.log("playWithoutJsonUpdate", "playWithoutJsonUpdate called");
             ArrayList<MediaItem> mediaPlaylist= MediaItemHandler.createMediaItemPlaylist(JSONHandler.readJsonFromFile(jsonFile),baseFolder);
             if (mediaPlaylist.isEmpty()){
                 FileLogger.logError("playWithoutJsonUpdate", "mediaPlayList isEmpty, isFileExist else part");

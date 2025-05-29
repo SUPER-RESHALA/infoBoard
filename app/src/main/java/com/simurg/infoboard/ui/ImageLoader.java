@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
+import com.simurg.infoboard.file.FileHandler;
 import com.simurg.infoboard.log.FileLogger;
 
 import java.io.File;
@@ -15,7 +16,7 @@ public class ImageLoader {
             FileLogger.logError("ImageLoader", "File not exist "+file.getAbsolutePath());
             return;
         }
-FileLogger.log("FIle is", file.getAbsolutePath());
+    FileLogger.log("FIle is", file.getAbsolutePath());
         DisplayMetrics metrics = imageView.getContext().getResources().getDisplayMetrics();
         int screenWidth = metrics.widthPixels;
         int screenHeight = metrics.heightPixels;
@@ -29,7 +30,15 @@ FileLogger.log("FIle is", file.getAbsolutePath());
         options.inJustDecodeBounds = false;
 
         Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, screenWidth, screenHeight, true);
+        if (bitmap==null){
+            FileLogger.logError("setImage", "Bitmap is null file: "+ file.getAbsolutePath());
+            FileHandler.deleteFile(file);
+            return;
+        }
+        int targetHeight = screenHeight;
+        float scale = (float) targetHeight / bitmap.getHeight();
+        int targetWidth = (int)(bitmap.getWidth() * scale);
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
         imageView.setImageBitmap(scaledBitmap);
     }
 

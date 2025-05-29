@@ -22,6 +22,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.activity.EdgeToEdge;
@@ -192,6 +193,7 @@ if (mainSchedule!=null&&!mainSchedule.isShutdown()){
         }
     }
     public void startPlaySchedule(){
+       Toast.makeText(this,"Идет обновление контента(запуск через минуту)", Toast.LENGTH_LONG).show();
         mainSchedule.scheduleWithFixedDelay(FileSyncService.syncAndStartPlaylist(jsonFile,config,this,baseDir,mp, tempFileExtension,this),1,10, TimeUnit.MINUTES);
     }
     public void startSendLogs(){

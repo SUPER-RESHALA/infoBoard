@@ -31,12 +31,16 @@ public class VideoItem extends MediaItem {
     public void play(MediaPlayerManager mediaPlayerManager) {
        mediaPlayerManager.setPlaying(true);
         if (!file.exists()){
-            FileLogger.logError(TAG, "Файл не существует(File not exist) "+ file.getAbsolutePath());
+            FileLogger.logError(TAG, "Файл не существует(File not exist) skip "+ file.getAbsolutePath());
+            mediaPlayerManager.playNext();
+            return;
         }
 
         long fileSize = file.length();
         if (fileSize > 300 * 1024 * 1024) {
-            FileLogger.logError(TAG, "Видео слишком большое для воспроизведения: " + file.getAbsolutePath());
+            FileLogger.logError(TAG, "Видео слишком большое для play(Video so huge to play): " + file.getAbsolutePath());
+            mediaPlayerManager.playNext();
+            FileLogger.log("Video play, Attention", "skip bad file(playNext)" );
             return;
         }
         VideoView videoView= mediaPlayerManager.getVideoView();
@@ -64,17 +68,20 @@ public class VideoItem extends MediaItem {
        mediaPlayerManager.setPlaying(false);
        mediaPlayerManager.setDefaultView();
         if (!file.exists()){
-            FileLogger.logError(TAG, "Файл не существует(File not exist) "+ file.getAbsolutePath());
+            FileLogger.logError(TAG, "Файл не существует(File not exist) skip "+ file.getAbsolutePath());
+            mediaPlayerManager.playNext();
+            return;
         }
         long fileSize = file.length();
         if (fileSize > 300 * 1024 * 1024) {
-            FileLogger.logError(TAG, "Видео слишком большое для воспроизведения: " + file.getAbsolutePath());
+            FileLogger.logError(TAG, "Видео слишком большое для play(file so huge to play) skip " + file.getAbsolutePath());
+            mediaPlayerManager.playNext();
             return;
         }
         VideoView videoView= mediaPlayerManager.getVideoView();
         FileLogger.log(TAG, "Получен videoView(Get VidView) "+ videoView.toString() + " | "+ videoView);
-
-
+        if (!mediaPlayerManager.isVideoAtCenter()) {
+        mediaPlayerManager.centerVideoView();}
         mediaPlayerManager.hideImageView();
         mediaPlayerManager.hideTextView();
         videoView.setVideoPath(file.getAbsolutePath());

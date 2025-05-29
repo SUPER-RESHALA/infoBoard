@@ -281,8 +281,9 @@ public void stratchVideoView(){
     public synchronized void playCycle() {
         if( mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1)FileLogger.logError("Play","mediaFiles==null");
         if (mediaFiles == null || mediaFiles.isEmpty() || currentIndex == -1) return;
-        FileLogger.log(TAG,"применено растягивание VideoView");
-        stratchVideoView();
+        FileLogger.log(TAG,"применено центрирование VideoView");
+        centerVideoView();
+        //stratchVideoView();
         if(currentIndex!=-1){
             mediaFiles.get(currentIndex).play(this);
         }else {
@@ -403,7 +404,17 @@ public void stopHandler(){
             handler.removeCallbacksAndMessages(null);
         }
 }
-
+ public void centerVideoView(){
+     ViewGroup.LayoutParams params = videoView.getLayoutParams();
+     params.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+     params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+     videoView.setLayoutParams(params);
+ }
+ public boolean isVideoAtCenter(){
+     ViewGroup.LayoutParams params = videoView.getLayoutParams();
+     return params.width == ViewGroup.LayoutParams.WRAP_CONTENT &&
+             params.height == ViewGroup.LayoutParams.MATCH_PARENT;
+ }
 //    public void stopSchedulerThread(){
 //        FileLogger.log(TAG, "Stop SchedulerThread Called");
 //        if (scheduleThread!=null&&!scheduleThread.isShutdown()){

@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
   File jsonFile;
   String tempFileExtension=".tmp";
   String logDirPath="/InfoBoardLogs";
+  boolean isFinishing=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        FileLogger.log("AppStarted", CustomDate.getCurrentDate().toString());
         permissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestMultiplePermissions(),
                 result -> {
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.i("Permissions", "Разрешение предоставлено: " + permission);
                         } else {
                             Log.e("Permissions", "Разрешение отклонено: " + permission);
+                            isFinishing=true;
                             finish();
                         }
                     }
@@ -126,17 +127,20 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Config", "ErrorConfig Setup");
             Handler handler= new Handler();
             // System.exit(0);
+            isFinishing=true;
             handler.postDelayed(this::finish,30000);
             return;
         }
         prefs= getApplicationContext().getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor=prefs.edit();
         if (config.getId()==null){FileLogger.logError("onCreate", "getId Is null");
+            isFinishing=true;
         this.finish();
         return;}//ПОД ВОПРОСОМ
         editor.putString("id",config.getId());
         editor.apply();
         FileLogger.init(this, prefsName);
+        FileLogger.log("AppStarted", CustomDate.getCurrentDate().toString());
         VideoView videoView = findViewById(R.id.videoView);
         ImageView imageView = findViewById(R.id.imageView);
         TextView textView1 = findViewById(R.id.textView);
@@ -161,19 +165,24 @@ Log.i("ConfigValues", config.getHost()+"\n"+ config.getUserName()+"\n"+config.ge
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(getResources().getColor(R.color.black));
+        window.setNavigationBarColor(Color.BLACK);
     }
     @Override
 protected void onStart(){
-super.onStart();
-if (mainSchedule==null|| mainSchedule.isShutdown()){
-    mainSchedule= Executors.newSingleThreadScheduledExecutor();
-startPlaySchedule();
-}
-if (logScheduler==null|| logScheduler.isShutdown()){
-    logScheduler= Executors.newSingleThreadScheduledExecutor();
-    startSendLogs();
-}
-
+ super.onStart();
+        if (!isFinishing || !this.isFinishing()) {
+    if (mainSchedule == null || mainSchedule.isShutdown()) {
+        mainSchedule = Executors.newSingleThreadScheduledExecutor();
+        startPlaySchedule();
+    }
+    if (logScheduler == null || logScheduler.isShutdown()) {
+        logScheduler = Executors.newSingleThreadScheduledExecutor();
+        startSendLogs();
+    }
+ }
     }
     protected void onDestroy(){
         super.onDestroy();
@@ -195,11 +204,16 @@ if (mainSchedule!=null&&!mainSchedule.isShutdown()){
         }
     }
     public void startPlaySchedule(){
-       Toast.makeText(this,"Идет обновление контента(запуск через минуту)", Toast.LENGTH_LONG).show();
+       Toast.makeText(this,"Идет обновление контента", Toast.LENGTH_LONG).show();
         mainSchedule.scheduleWithFixedDelay(FileSyncService.syncAndStartPlaylist(jsonFile,config,this,baseDir,mp, tempFileExtension,this,prefs),1,10, TimeUnit.MINUTES);
     }
     public void startSendLogs(){
         logScheduler.scheduleWithFixedDelay( (()->{ LogsToFtp.sendLogsToFtp(config,logDirPath,this,prefsName);}),1,1,TimeUnit.MINUTES);
+    }
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus){
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus)setUiOptions();
     }
     //TODO 1.mp.getHandler().removeCallbacksAndMessages(может быть конкретный Runnable сделать)(CHECKED, DENIED)
     // 2. Сделать отдельный поток для отправки логов на сервер(DONE)

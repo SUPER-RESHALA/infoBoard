@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     private ScheduledExecutorService logScheduler;
     private MediaPlayerManager mp;
   private Config config;
+    SharedPreferences prefs;
   File baseDir;
   File jsonFile;
   String tempFileExtension=".tmp";
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(this::finish,30000);
             return;
         }
-        SharedPreferences prefs= getApplicationContext().getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+        prefs= getApplicationContext().getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor=prefs.edit();
         if (config.getId()==null){FileLogger.logError("onCreate", "getId Is null");
         this.finish();
@@ -195,7 +196,7 @@ if (mainSchedule!=null&&!mainSchedule.isShutdown()){
     }
     public void startPlaySchedule(){
        Toast.makeText(this,"Идет обновление контента(запуск через минуту)", Toast.LENGTH_LONG).show();
-        mainSchedule.scheduleWithFixedDelay(FileSyncService.syncAndStartPlaylist(jsonFile,config,this,baseDir,mp, tempFileExtension,this),1,10, TimeUnit.MINUTES);
+        mainSchedule.scheduleWithFixedDelay(FileSyncService.syncAndStartPlaylist(jsonFile,config,this,baseDir,mp, tempFileExtension,this,prefs),1,10, TimeUnit.MINUTES);
     }
     public void startSendLogs(){
         logScheduler.scheduleWithFixedDelay( (()->{ LogsToFtp.sendLogsToFtp(config,logDirPath,this,prefsName);}),1,1,TimeUnit.MINUTES);

@@ -2,6 +2,7 @@ package com.simurg.infoboard.file;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -30,7 +31,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class FileSyncService {
-
+    public final static String ftpFileSizeName="ftpFileSize";
     /**
      * Checks whether the JSON file has changed compared to the version on the FTP server.
      *
@@ -42,16 +43,19 @@ public class FileSyncService {
      * @return {@code true} if the file has changed (size or last modification time differs), otherwise {@code false}.
      * @throws IOException if an error occurs while retrieving information from the FTP server.
      */
-    public static boolean isJsonChanged(File jsonFile, FTPClient ftpClient) throws IOException {
+    public static boolean isJsonChanged(File jsonFile, FTPClient ftpClient, SharedPreferences prefs) throws IOException {
+        long ftpDateChange=prefs.getLong(ftpFileSizeName,-1);
         FtpFileInfo ftpFileInfo= FtpFileManager.getFileInfo(jsonFile.getName(),ftpClient);
         FileLogger.log("isJsonChanged", ftpFileInfo != null ? ftpFileInfo + "  FtpGetSize " + ftpFileInfo.getSize() : "File not found on server");
         if (ftpFileInfo == null) {
             FileLogger.logError("isJsonChanged", "ftpFileInfo is null");
             return false;
         }
+        FileLogger.log("isJsonChanged", "Prefsdate  "+ftpDateChange+"  getTime"+ftpFileInfo.getModificationTime().getTime());
+        if (ftpDateChange==-1||ftpDateChange!=ftpFileInfo.getModificationTime().getTime() ){
+            prefs.edit().putLong(ftpFileSizeName,ftpFileInfo.getModificationTime().getTime()).apply();
+             return true;}
         return FileHandler.getFileSize(jsonFile) != ftpFileInfo.getSize();
-//                ||
-//               FileHandler.lastModified(jsonFile) != ftpFileInfo.getModificationTime().getTime();
     }
 
     public boolean isFilePresent(MediaItem mediaItem){
@@ -95,7 +99,7 @@ return FileHandler.renameFileWithReplace(tmpFile.getAbsolutePath(),newFilename);
 //Optional<File> tmpFile= Optional.ofNullable(downloadJsonFile(jsonFile,config,context,ftpFileManager));
 //return tmpFile.map(FileSyncService::tmpToJson);
 //}
-public  static boolean syncMediaFiles(FtpConnectionManager ftpConnectionManager, FtpFileManager ftpFileManager,File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity) throws IOException {
+public  static boolean syncMediaFiles(FtpConnectionManager ftpConnectionManager, FtpFileManager ftpFileManager,File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity, SharedPreferences prefs) throws IOException {
 //    FtpConnectionManager ftpConnectionManager= new FtpConnectionManager();
 //    FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
     if(!NetworkUtils.isNetworkConnected(context)){return false;}
@@ -103,7 +107,7 @@ public  static boolean syncMediaFiles(FtpConnectionManager ftpConnectionManager,
     ftpConnectionManager.login(config.getUserName(),config.getPassword());
     ftpConnectionManager.setTimeout(500000);
         if (FileChecker.isFileExist(jsonFile)){
-            if (isJsonChanged(jsonFile,ftpConnectionManager.getFtpClient())){
+            if (isJsonChanged(jsonFile,ftpConnectionManager.getFtpClient(),prefs)){
                 ftpConnectionManager.reconnect(config);
                 return formPlaylistAndJson(ftpFileManager, jsonFile, config, context, baseFolder, mp, tempFileExtension, activity);
             }else {
@@ -229,7 +233,7 @@ public static boolean startPlaylistNoDownload(File jsonFile,File baseFolder, Med
         }
         return false;
 }
-public static Runnable syncAndStartPlaylist(File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity){
+public static Runnable syncAndStartPlaylist(File jsonFile, Config config, Context context, File baseFolder, MediaPlayerManager mp, String tempFileExtension, Activity activity, SharedPreferences prefs){
         return ()->{
             FtpConnectionManager ftpConnectionManager = new FtpConnectionManager();
             FtpFileManager ftpFileManager = new FtpFileManager(ftpConnectionManager.getFtpClient());
@@ -237,7 +241,7 @@ public static Runnable syncAndStartPlaylist(File jsonFile, Config config, Contex
 //                ftpConnectionManager.connect(config.getHost());
 //                ftpConnectionManager.login()
                 FileLogger.log("syncAndStartPlaylist", "syncOnProcess");
-               FileLogger.log("syncAndStartPlaylist", "sync is "+syncMediaFiles(ftpConnectionManager,ftpFileManager,jsonFile,config, context,baseFolder,mp,tempFileExtension,activity));
+               FileLogger.log("syncAndStartPlaylist", "sync is "+syncMediaFiles(ftpConnectionManager,ftpFileManager,jsonFile,config, context,baseFolder,mp,tempFileExtension,activity, prefs));
             } catch (IOException e) {
                 FileLogger.logError("syncAndStartPlaylist", "Exception in method: "+ e.getMessage()+ "    "+Log.getStackTraceString(e));
                 deleteAllTmp(baseFolder,tempFileExtension);

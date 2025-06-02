@@ -59,31 +59,7 @@ public class VideoItem extends MediaItem {
             videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mediaPlayer) {
-                    //Get your video's width and height
-                    int videoWidth = mediaPlayer.getVideoWidth();
-                    int videoHeight = mediaPlayer.getVideoHeight();
-
-                    //Get VideoView's current width and height
-                    int videoViewWidth = videoView.getWidth();
-                    int videoViewHeight = videoView.getHeight();
-
-                    float xScale = (float) videoViewWidth / videoWidth;
-                    float yScale = (float) videoViewHeight / videoHeight;
-
-                    //For Center Crop use the Math.max to calculate the scale
-                    //float scale = Math.max(xScale, yScale);
-                    //For Center Inside use the Math.min scale.
-                    //I prefer Center Inside so I am using Math.min
-                    float scale = Math.min(xScale, yScale);
-
-                    float scaledWidth = scale * videoWidth;
-                    float scaledHeight = scale * videoHeight;
-
-                    //Set the new size for the VideoView based on the dimensions of the video
-                    ViewGroup.LayoutParams layoutParams = videoView.getLayoutParams();
-                    layoutParams.width = (int)scaledWidth;
-                    layoutParams.height = (int)scaledHeight;
-                    videoView.setLayoutParams(layoutParams);
+                  tuneVideoScale(mediaPlayer,videoView);
                     FileLogger.log(TAG,"Началось проигрывание видео(Start Playing Vid");
                     videoView.start();
                 }
@@ -120,31 +96,7 @@ public class VideoItem extends MediaItem {
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
-                //Get your video's width and height
-                int videoWidth = mediaPlayer.getVideoWidth();
-                int videoHeight = mediaPlayer.getVideoHeight();
-
-                //Get VideoView's current width and height
-                int videoViewWidth = videoView.getWidth();
-                int videoViewHeight = videoView.getHeight();
-
-                float xScale = (float) videoViewWidth / videoWidth;
-                float yScale = (float) videoViewHeight / videoHeight;
-
-                //For Center Crop use the Math.max to calculate the scale
-                //float scale = Math.max(xScale, yScale);
-                //For Center Inside use the Math.min scale.
-                //I prefer Center Inside so I am using Math.min
-                float scale = Math.min(xScale, yScale);
-
-                float scaledWidth = scale * videoWidth;
-                float scaledHeight = scale * videoHeight;
-
-                //Set the new size for the VideoView based on the dimensions of the video
-                ViewGroup.LayoutParams layoutParams = videoView.getLayoutParams();
-                layoutParams.width = (int)scaledWidth;
-                layoutParams.height = (int)scaledHeight;
-                videoView.setLayoutParams(layoutParams);
+              tuneVideoScale(mediaPlayer,videoView);
                 FileLogger.log(TAG,"Началось проигрывание видео(Start Playing Vid");
                 videoView.start();
             }
@@ -152,7 +104,31 @@ public class VideoItem extends MediaItem {
  //       FileLogger.log(TAG, "VideoItem playOnce play next");
        videoView.setOnCompletionListener(mp -> mediaPlayerManager.play());
     }
+protected void tuneVideoScale(MediaPlayer mediaPlayer, VideoView videoView){
+    //Get your video's width and height
+    int videoWidth = mediaPlayer.getVideoWidth();
+    int videoHeight = mediaPlayer.getVideoHeight();
+    //Get VideoView's current width and height
+    int videoViewWidth = videoView.getWidth();
+    int videoViewHeight = videoView.getHeight();
+    float xScale = (float) videoViewWidth / videoWidth;
+    float yScale = (float) videoViewHeight / videoHeight;
 
+    //For Center Crop use the Math.max to calculate the scale
+    //float scale = Math.max(xScale, yScale);
+    //For Center Inside use the Math.min scale.
+    //I prefer Center Inside so I am using Math.min
+    float scale = Math.min(xScale, yScale);
+
+    float scaledWidth = scale * videoWidth;
+    float scaledHeight = scale * videoHeight;
+
+    //Set the new size for the VideoView based on the dimensions of the video
+    ViewGroup.LayoutParams layoutParams = videoView.getLayoutParams();
+    layoutParams.width = (int)scaledWidth;
+    layoutParams.height = (int)scaledHeight;
+    videoView.setLayoutParams(layoutParams);
+}
 
     @Override
     public String toString() {

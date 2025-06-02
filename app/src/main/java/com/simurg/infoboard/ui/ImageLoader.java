@@ -11,37 +11,6 @@ import com.simurg.infoboard.log.FileLogger;
 import java.io.File;
 
 public class ImageLoader {
-    public static void setImage(ImageView imageView, File file) {
-        if (!file.exists()) {
-            FileLogger.logError("ImageLoader", "File not exist "+file.getAbsolutePath());
-            return;
-        }
-    FileLogger.log("FIle is", file.getAbsolutePath());
-        DisplayMetrics metrics = imageView.getContext().getResources().getDisplayMetrics();
-        int screenWidth = metrics.widthPixels;
-        int screenHeight = metrics.heightPixels;
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-
-        // Вычисляем коэффициент уменьшения
-        options.inSampleSize = calculateInSampleSize(options, screenWidth, screenHeight);
-        options.inJustDecodeBounds = false;
-
-        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-        if (bitmap==null){
-            FileLogger.logError("setImage", "Bitmap is null file: "+ file.getAbsolutePath());
-            FileHandler.deleteFile(file);
-            return;
-        }
-        int targetHeight = screenHeight;
-        float scale = (float) targetHeight / bitmap.getHeight();
-        int targetWidth = (int)(bitmap.getWidth() * scale);
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true);
-        imageView.setImageBitmap(scaledBitmap);
-    }
-
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         int height = options.outHeight;
         int width = options.outWidth;
@@ -59,5 +28,52 @@ public class ImageLoader {
 
         return inSampleSize;
     }
+    public static void setImage(ImageView imageView, File file) {
+        if (!file.exists()) {
+            FileLogger.logError("ImageLoader", "File not exist " + file.getAbsolutePath());
+            return;
+        }
 
+        FileLogger.log("ImageLoader", "Loading file: " + file.getAbsolutePath());
+
+        DisplayMetrics metrics = imageView.getContext().getResources().getDisplayMetrics();
+        int screenWidth = metrics.widthPixels;
+        int screenHeight = metrics.heightPixels;
+
+        // 1. Получаем размеры оригинала без загрузки
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+
+        int originalWidth = options.outWidth;
+        int originalHeight = options.outHeight;
+
+        if (originalWidth <= 0 || originalHeight <= 0) {
+            FileLogger.logError("ImageLoader", "Invalid image size");
+            return;
+        }
+
+        // 2. Вычисляем масштаб до экрана, сохраняя пропорции
+        float widthScale = (float) screenWidth / originalWidth;
+        float heightScale = (float) screenHeight / originalHeight;
+        float scale = Math.min(widthScale, heightScale); // Равномерное масштабирование
+
+        int targetWidth = Math.round(originalWidth * scale);
+        int targetHeight = Math.round(originalHeight * scale);
+
+        // 3. Загружаем с учетом нужных размеров
+        options.inJustDecodeBounds = false;
+        options.inSampleSize = calculateInSampleSize(options, targetWidth, targetHeight);
+        Bitmap decodedBitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+
+        if (decodedBitmap == null) {
+            FileLogger.logError("ImageLoader", "Bitmap decode failed: " + file.getAbsolutePath());
+            FileHandler.deleteFile(file);
+            return;
+        }
+
+        // 4. Масштабируем точно
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(decodedBitmap, targetWidth, targetHeight, true);
+        imageView.setImageBitmap(scaledBitmap);
+    }
 }
